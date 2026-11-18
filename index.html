@@ -9493,6 +9493,14 @@ document.addEventListener('pointerdown', (e) => {
   const PS_FILTER = (() => { try { return 'filter' in document.createElement('canvas').getContext('2d'); } catch (e) { return false; } })();
   try { PS.stageBg = localStorage.getItem('ps-stage-bg') || null; } catch (_) { PS.stageBg = null; }
   try { PS.tFold = localStorage.getItem('ps-tfold') === '1'; } catch (_) { PS.tFold = false; }
+  const PS_VIEW_PREFS_KEY = 'ps-view-preferences';
+  try {
+    const saved = JSON.parse(localStorage.getItem(PS_VIEW_PREFS_KEY) || '{}');
+    ['keepMargin', 'respFit', 'rulers', 'dims'].forEach(k => { if (typeof saved[k] === 'boolean') PS[k] = saved[k]; });
+  } catch (_) {}
+  function psSaveViewPrefs() {
+    try { localStorage.setItem(PS_VIEW_PREFS_KEY, JSON.stringify({ keepMargin: PS.keepMargin, respFit: PS.respFit, rulers: PS.rulers, dims: PS.dims })); } catch (_) {}
+  }
   let psOpen = false, psRaf = 0;
   const psImgSize = () => { const im = PS.img; return im ? { w: im.naturalWidth || im.width, h: im.naturalHeight || im.height } : { w: 1, h: 1 }; };
   const psQuarter = () => Math.round(PS.rot / 90) % 2 !== 0 && PS.rot % 90 === 0;
@@ -9654,36 +9662,53 @@ document.addEventListener('pointerdown', (e) => {
   }
   async function psPrint() {
     if (!psNeedImg()) return; showLoading('Preparando impresión…');
+    let restorePrintArea = null;
     try {
-      const G = psGeom(), tiles = psTiles(G), p = getPaperCm(), w = window.open('', '_blank');
-      if (!w) throw new Error('Popup bloqueado');
-      // Las imágenes se crean una por una y se liberan después de serializarlas, evitando
-      // mantener todos los canvas de alta resolución simultáneamente en memoria.
-      const pages = [];
+      const G = psGeom(), tiles = psTiles(G), p = getPaperCm();
+      const printArea = $('printArea'), oldHTML = printArea.innerHTML;
+      const oldPW = printArea.style.getPropertyValue('--pw'), oldPH = printArea.style.getPropertyValue('--ph');
+      const styleTag = document.getElementById('dynamicPageSize') || (() => { const s = document.createElement('style'); s.id = 'dynamicPageSize'; document.head.appendChild(s); return s; })();
+      const oldPageRule = styleTag.textContent;
+      const inchW = (p.w / 2.54).toFixed(4), inchH = (p.h / 2.54).toFixed(4);
+      let sizeRule = `${inchW}in ${inchH}in`;
+      if (state.paperType === 'carta') sizeRule = state.orientation === 'horizontal' ? 'letter landscape' : 'letter';
+      else if (state.paperType === 'legal') sizeRule = state.orientation === 'horizontal' ? 'legal landscape' : 'legal';
+      styleTag.textContent = `@media print { @page { size: ${sizeRule}; margin: 0; } }`;
+      printArea.innerHTML = '';
+      printArea.style.setProperty('--pw', `${(p.w / 2.54 * 72).toFixed(4)}pt`);
+      printArea.style.setProperty('--ph', `${(p.h / 2.54 * 72).toFixed(4)}pt`);
+      // Imprime desde el área de impresión del documento actual: no abre otra pestaña.
       for (let i = 0; i < tiles.length; i++) {
         const t = tiles[i]; $('loading-label').textContent = `Preparando impresión: hoja ${i + 1} de ${tiles.length}…`; await psTick();
         const cv = psRenderTile(t.r, t.c, PS.dpi, i + 1, tiles.length);
-        pages.push(`<section class="sheet"><img alt="Hoja ${i + 1}" src="${cv.toDataURL('image/png')}"></section>`);
+        const pageDiv = document.createElement('div'); pageDiv.className = 'print-page';
+        const img = document.createElement('img'); img.alt = `Hoja ${i + 1}`; img.src = cv.toDataURL('image/png');
+        pageDiv.appendChild(img); printArea.appendChild(pageDiv);
         cv.width = 1; cv.height = 1;
       }
-      const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Imprimir póster</title><style>
-        @page{size:${p.w}cm ${p.h}cm;margin:0}
-        *{box-sizing:border-box}html,body{margin:0!important;padding:0!important;width:${p.w}cm!important;background:#fff!important}
-        body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-        .sheet{display:block;position:relative;width:${p.w}cm!important;height:${p.h}cm!important;min-width:${p.w}cm!important;min-height:${p.h}cm!important;max-width:none!important;max-height:none!important;overflow:hidden;margin:0;padding:0;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
-        .sheet:last-child{break-after:auto;page-break-after:auto}
-        .sheet img{display:block!important;width:${p.w}cm!important;height:${p.h}cm!important;max-width:none!important;max-height:none!important;object-fit:fill;margin:0!important;padding:0!important;border:0!important}
-        @media screen{body{padding:12px!important}.sheet{margin:0 auto 12px!important;outline:1px solid #bbb}}
-      
-</style></head><body>${pages.join('')}<script>
-        window.addEventListener('load',async()=>{const imgs=[...document.images];await Promise.all(imgs.map(im=>im.decode?im.decode().catch(()=>{}):Promise.resolve()));window.focus();setTimeout(()=>window.print(),250)});
-      <\/script></body></html>`;
-      w.document.open(); w.document.write(html); w.document.close(); hideLoading(); sfx.success();
-      $('psInfo').textContent = 'Para conservar las medidas, imprime el PDF o las hojas con “Tamaño real / 100 %”; desactiva “Ajustar a página”. La impresora puede aplicar una escala propia.';
+      const imgs = Array.from(printArea.querySelectorAll('img'));
+      await Promise.all(imgs.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve()));
+      let restored = false;
+      restorePrintArea = () => {
+        if (restored) return; restored = true;
+        printArea.innerHTML = oldHTML;
+        if (oldPW) printArea.style.setProperty('--pw', oldPW); else printArea.style.removeProperty('--pw');
+        if (oldPH) printArea.style.setProperty('--ph', oldPH); else printArea.style.removeProperty('--ph');
+        styleTag.textContent = oldPageRule;
+        window.removeEventListener('afterprint', restorePrintArea);
+      };
+      window.addEventListener('afterprint', restorePrintArea);
+      hideLoading(); sfx.success();
+      $('psInfo').textContent = 'Para conservar las medidas, imprime con “Tamaño real / 100 %”; desactiva “Ajustar a página”. La impresora puede aplicar una escala propia.';
       $('psInfo').classList.remove('warn');
-    } catch (err) { hideLoading(); sfx.error(); $('psInfo').textContent = 'No se pudo abrir la impresión. Permite ventanas emergentes e inténtalo de nuevo.'; $('psInfo').classList.add('warn'); }
+      window.print();
+      // Respaldo para navegadores móviles que no notifican afterprint al cerrar el diálogo.
+      setTimeout(restorePrintArea, 60000);
+    } catch (err) {
+      if (restorePrintArea) restorePrintArea();
+      hideLoading(); sfx.error(); $('psInfo').textContent = 'No se pudo preparar la impresión. Inténtalo de nuevo.'; $('psInfo').classList.add('warn');
+    }
   }
-
   const PS_PRESETS = [['', 'Personalizado'], ['29.7x42', 'A3 (29.7 × 42)'], ['42x59.4', 'A2 (42 × 59.4)'], ['59.4x84.1', 'A1 (59.4 × 84.1)'], ['84.1x118.9', 'A0 (84.1 × 118.9)'], ['50x70', '50 × 70'], ['60x90', '60 × 90'], ['70x100', '70 × 100'], ['100x150', '100 × 150']];
   const psRg = (k, t, mn, mx, st) => `<label>${t} (<span data-o="${k}"></span>)</label><input type="range" data-ps="${k}" min="${mn}" max="${mx}" step="${st}">`;
   const psSw = (k, t) => `<div class="switch-row"><span>${t}</span><label class="switch"><input type="checkbox" data-ps="${k}"><span class="switch-slider"></span></label></div>`;
@@ -9747,6 +9772,7 @@ document.addEventListener('pointerdown', (e) => {
           <details class="pe-d" open><summary>Imagen</summary><div class="pe-fb">
           <button type="button" class="btn full cyan" data-pa="pick">${PSI.image}<span>Elegir imagen</span></button><button type="button" class="btn full" data-pa="camera">${PSI.camera}<span>Cámara</span></button>
           <button type="button" class="btn full" data-pa="page">${PSI.file}<span>Usar página actual</span></button>
+          <button type="button" class="btn full" data-pa="cropPoster">${PSI.fit}<span>Recortar imagen</span></button>
           <input type="file" id="psFile" accept="image/*" style="display:none"><input type="file" id="psCamera" accept="image/*" capture="environment" style="display:none">
           </div></details><details class="pe-d"><summary>Ajuste</summary><div class="pe-fb">${psTg('fit', [['fill', 'Rellenar'], ['fit', 'Ajustar'], ['stretch', 'Estirar']])}
           <button type="button" class="btn full" data-pa="center">${PSI.rotL}<span>Centrar y restablecer</span></button>
@@ -9866,6 +9892,7 @@ document.addEventListener('pointerdown', (e) => {
     if (k === 'scaleX' || k === 'scaleY' || k === 'scaleLink') { PS.scaleX = Math.max(10, Math.min(400, Number(PS.scaleX) || 100)); PS.scaleY = Math.max(10, Math.min(400, Number(PS.scaleY) || 100)); if (PS.scaleLink) { if (k === 'scaleY') PS.scaleX = PS.scaleY; else PS.scaleY = PS.scaleX; } }
     if (!raw && PS.img && ['scaleX', 'scaleY', 'scaleLink', 'zoom'].includes(k)) psKeepIn(k);
     if (k === 'stageBg') { try { localStorage.setItem('ps-stage-bg', PS.stageBg || ''); } catch (_) {} }
+    if (['keepMargin', 'respFit', 'rulers', 'dims'].includes(k)) psSaveViewPrefs();
     if (k === 'preset') { const v = PS.preset; if (v) { const [w, h] = v.split('x').map(parseFloat); PS.pw = w; PS.ph = h; PS.lock = false; PS.mode = 'size'; } }
     if (['pw', 'ph'].includes(k)) { PS.pw = Math.max(5, PS.pw || 5); PS.ph = Math.max(5, PS.ph || 5); PS.preset = ''; if (PS.lock && PS.img) { if (k === 'pw') PS.ph = Math.round(PS.pw / psRatio() * 10) / 10; else PS.pw = Math.round(PS.ph * psRatio() * 10) / 10; } }
     if (k === 'lock' && PS.lock && PS.img) PS.ph = Math.round(PS.pw / psRatio() * 10) / 10;
@@ -9918,6 +9945,7 @@ document.addEventListener('pointerdown', (e) => {
     sfx.tap();
     if (a === 'pick') $('psFile').click();
     else if (a === 'camera') $('psCamera').click();
+    else if (a === 'cropPoster') { if (PS.img) openPosterCrop(); else { $('psInfo').textContent = 'Primero elige una imagen o usa la página actual.'; $('psInfo').classList.add('warn'); } }
     else if (a === 'page') { showLoading('Cargando página...'); renderPageToCanvas(state.currentPageIndex, 200).then(cv => { PS.img = null; return psLoadImage(cv.toDataURL('image/png'), 'Página'); }).catch(() => {}).then(hideLoading); }
     else if (a === 'rotL' || a === 'rotR') { PS.rot = Math.round((PS.rot + (a === 'rotR' ? 90 : -90)) / 90) * 90; if (PS.rot > 180) PS.rot -= 360; if (PS.rot < -180) PS.rot += 360; psAfterRot(); psChange('rot'); }
     else if (a === 'flipH') { PS.flipH = !PS.flipH; psChange('flipH'); } else if (a === 'flipV') { PS.flipV = !PS.flipV; psChange('flipV'); }
@@ -10026,24 +10054,36 @@ document.addEventListener('pointerdown', (e) => {
       x.restore();
     }
     if (PS.dims) {
-      const col = '#0a84ff', lo = PS.rulers ? RH + 3 : 3, x0 = X(V.x0, false), x1 = X(V.x1, true), y0 = Y(V.y0, false), y1 = Y(V.y1, true);
-      const dim = (horiz, a, b, p, text) => {
-        const hi = (horiz ? aw : ah) - 3, vmin = PS.rulers ? RH + 3 : 3; if (b < lo || a > hi || p < vmin || p > (horiz ? ah : aw) - 3) return;
-        x.save(); x.font = '700 10px "JetBrains Mono", monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
-        const stroke = (w, c) => { x.lineWidth = w; x.strokeStyle = c; x.beginPath(); if (horiz) { x.moveTo(a, p); x.lineTo(b, p); x.moveTo(a, p - 4); x.lineTo(a, p + 4); x.moveTo(b, p - 4); x.lineTo(b, p + 4); } else { x.moveTo(p, a); x.lineTo(p, b); x.moveTo(p - 4, a); x.lineTo(p + 4, a); x.moveTo(p - 4, b); x.lineTo(p + 4, b); } x.stroke(); };
-        stroke(3.2, 'rgba(255,255,255,.92)'); stroke(1.3, col);
-        const tw = x.measureText(text).width + 10, va = Math.max(a, lo), vb = Math.min(b, hi); let m = (va + vb) / 2; if (vb - va > tw) m = Math.max(va + tw / 2, Math.min(vb - tw / 2, (a + b) / 2));
-        x.translate(horiz ? m : p, horiz ? p : m); if (!horiz) x.rotate(-Math.PI / 2);
-        x.fillStyle = col; x.fillRect(-tw / 2, -8, tw, 16); x.fillStyle = '#fff'; x.fillText(text, 0, .5); x.restore();
+      const x0 = ox, x1 = ox + k * G.VW, y0 = oy, y1 = oy + k * G.VH;
+      const wT = gFmt(V.x1 - V.x0) + ' cm', hT = gFmt(V.y1 - V.y0) + ' cm';
+      const ink = 'rgba(155, 163, 176, .78)', label = 'rgba(180, 187, 198, .88)';
+      x.save(); x.strokeStyle = ink; x.fillStyle = label; x.lineWidth = 1;
+      x.font = '500 9px "JetBrains Mono", monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      const hDim = (a, b, y, text) => {
+        if (b <= a) return;
+        const mid = (a + b) / 2, gap = Math.min(34, Math.max(22, x.measureText(text).width + 8));
+        x.beginPath(); x.moveTo(a, y - 4); x.lineTo(a, y + 4); x.moveTo(b, y - 4); x.lineTo(b, y + 4);
+        x.moveTo(a, y); x.lineTo(mid - gap / 2, y); x.moveTo(mid + gap / 2, y); x.lineTo(b, y); x.stroke();
+        x.fillText(text, mid, y);
       };
-      const wT = gFmt(V.x1 - V.x0) + ' cm', hT = gFmt(V.y1 - V.y0) + ' cm', bigH = (y1 - y0) > 40, bigW = (x1 - x0) > 40;
-      dim(true, x0, x1, y0 + 12, wT); if (bigH) dim(true, x0, x1, y1 - 12, wT);
-      dim(false, y0, y1, x0 + 12, hT); if (bigW) dim(false, y0, y1, x1 - 12, hT);
+      const vDim = (a, b, xx, text) => {
+        if (b <= a) return;
+        const mid = (a + b) / 2;
+        x.beginPath(); x.moveTo(xx - 4, a); x.lineTo(xx + 4, a); x.moveTo(xx - 4, b); x.lineTo(xx + 4, b);
+        x.moveTo(xx, a); x.lineTo(xx, mid - 14); x.moveTo(xx, mid + 14); x.lineTo(xx, b); x.stroke();
+        x.save(); x.translate(xx, mid); x.rotate(-Math.PI / 2); x.fillText(text, 0, 0); x.restore();
+      };
+      // Las cotas se dibujan en el espacio exterior reservado, nunca sobre la hoja.
+      hDim(x0, x1, y0 - 13, wT);
+      hDim(x0, x1, y1 + 13, wT);
+      vDim(y0, y1, x0 - 13, hT);
+      vDim(y0, y1, x1 + 13, hT);
+      x.restore();
     }
   }
   function psPaint() {
     const cv = $('psCanvas'), st = cv.parentElement, aw = st.clientWidth, ah = st.clientHeight; if (aw <= 10 || ah <= 10) return;
-    const G = psGeom(), dpr = Math.min(2, window.devicePixelRatio || 1), pad = 14, RH = 16, padL = PS.rulers ? pad + RH : pad, padT = PS.rulers ? pad + RH : pad;
+    const G = psGeom(), dpr = Math.min(2, window.devicePixelRatio || 1), pad = PS.dims ? 34 : 14, RH = 16, padL = PS.rulers ? pad + RH : pad, padT = PS.rulers ? pad + RH : pad;
     const k0 = Math.max(0.001, Math.min((aw - padL - pad) / G.VW, (ah - padT - pad) / G.VH)), k = k0 * PS.vz;
     const sx0 = (padL - pad) / 2, sy0 = (padT - pad) / 2; PS._sx0 = sx0; PS._sy0 = sy0;
     const ox = aw / 2 + sx0 - G.VW * k / 2 + PS.vx, oy = ah / 2 + sy0 - G.VH * k / 2 + PS.vy;
@@ -10258,6 +10298,49 @@ document.addEventListener('pointerdown', (e) => {
     cropSetTool('crop'); cropSetAr(null); cropRailApply(); cropFit(true); cropApplyView();
     cropDraw();
   }
+  async function openPosterCrop() {
+    if (!PS.img) {
+      $('psInfo').textContent = 'Primero elige una imagen o usa la página actual.';
+      $('psInfo').classList.add('warn');
+      return;
+    }
+    const im = PS.img, nw = im.naturalWidth || im.width, nh = im.naturalHeight || im.height;
+    if (!nw || !nh) return;
+    const l = Math.max(0, Math.min(45, Number(PS.cropL) || 0)) / 100;
+    const r = Math.max(0, Math.min(45, Number(PS.cropR) || 0)) / 100;
+    const t = Math.max(0, Math.min(45, Number(PS.cropT) || 0)) / 100;
+    const b = Math.max(0, Math.min(45, Number(PS.cropB) || 0)) / 100;
+    const init = { x: l, y: t, w: Math.max(.01, 1 - l - r), h: Math.max(.01, 1 - t - b) };
+    cropS = { poster: true, im, nw, nh, init, x: init.x, y: init.y, w: init.w, h: init.h, ar: null };
+    const cropImage = $('cropImg');
+    try {
+      // PS.img ya está cargada y es la fuente real del póster. Crear una vista
+      // independiente evita depender de im.src (puede ser una URL temporal revocada).
+      const preview = document.createElement('canvas');
+      preview.width = nw; preview.height = nh;
+      const previewCtx = preview.getContext('2d');
+      if (!previewCtx) throw new Error('Canvas no disponible');
+      previewCtx.drawImage(im, 0, 0, nw, nh);
+      cropImage.src = preview.toDataURL('image/png');
+      if (cropImage.decode) await cropImage.decode();
+      else if (!cropImage.complete || !cropImage.naturalWidth) {
+        await new Promise((resolve, reject) => {
+          cropImage.onload = resolve;
+          cropImage.onerror = () => reject(new Error('No se pudo cargar la vista previa'));
+        });
+      }
+      if (!cropImage.naturalWidth || !cropImage.naturalHeight) throw new Error('Vista previa vacía');
+    } catch (_) {
+      cropImage.removeAttribute('src');
+      $('psInfo').textContent = 'No se pudo preparar la imagen para recortarla.';
+      $('psInfo').classList.add('warn');
+      return;
+    }
+    cropPtrs.clear(); cropPinch = null; cropPan = null; cropDrag = null; cropView = { z: 1, x: 0, y: 0 };
+    cropRail.L.classList.remove('min', 'away'); cropRail.R.classList.remove('min', 'away');
+    $('cropModal').classList.add('show');
+    cropSetTool('crop'); cropSetAr(null); cropRailApply(); cropFit(true); cropApplyView(); cropDraw();
+  }
   function closeCrop() { $('cropModal').classList.remove('show'); cropS = null; cropDrag = null; cropPtrs.clear(); cropPinch = null; cropPan = null; cropView = { z: 1, x: 0, y: 0 }; cropApplyView(); $('cropImg').removeAttribute('src'); }
   (function () {
     const rect = $('cropRect'), vp = $('cropViewport');
@@ -10349,8 +10432,27 @@ document.addEventListener('pointerdown', (e) => {
     $('cropReset').addEventListener('click', () => { if (!cropS) return; sfx.tap(); Object.assign(cropS, cropS.init); cropSetAr(null); });
     $('cropApply').addEventListener('click', () => {
       const s = cropS; if (!s) return;
-      const el = findEl(s.id); if (!el) { closeCrop(); return; }
       const im = s.im, nw = s.nw, nh = s.nh;
+      if (s.poster) {
+        const cx = Math.max(0, Math.min(nw - 1, Math.round(s.x * nw))), cy = Math.max(0, Math.min(nh - 1, Math.round(s.y * nh)));
+        const cw = Math.max(1, Math.min(nw - cx, Math.round(s.w * nw))), ch = Math.max(1, Math.min(nh - cy, Math.round(s.h * nh)));
+        try {
+          const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+          const ctx = c.getContext('2d'); if (!ctx) throw new Error('Canvas no disponible');
+          ctx.drawImage(im, cx, cy, cw, ch, 0, 0, cw, ch);
+          const mime = ((im.currentSrc || im.src || '').match(/^data:(image\/[a-zA-Z0-9.+-]+)/) || [])[1];
+          const out = mime === 'image/jpeg' ? c.toDataURL('image/jpeg', 0.95) : c.toDataURL('image/png');
+          const next = new Image();
+          next.onload = () => {
+            PS.img = next; PS.cropL = PS.cropR = PS.cropT = PS.cropB = 0;
+            psSync(); psDraw(); closeCrop(); sfx.success();
+          };
+          next.onerror = () => { sfx.error(); closeCrop(); };
+          next.src = out;
+        } catch (err) { sfx.error(); closeCrop(); }
+        return;
+      }
+      const el = findEl(s.id); if (!el) { closeCrop(); return; }
       const cx = Math.max(0, Math.min(nw - 1, Math.round(s.x * nw))), cy = Math.max(0, Math.min(nh - 1, Math.round(s.y * nh)));
       const cw = Math.max(1, Math.min(nw - cx, Math.round(s.w * nw))), ch = Math.max(1, Math.min(nh - cy, Math.round(s.h * nh)));
       try {
