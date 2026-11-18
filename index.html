@@ -222,6 +222,15 @@
   #stage > * { pointer-events: auto; }
   .page { position: relative; background-color: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.12); margin-bottom: 18px; overflow: hidden; pointer-events: auto; }
   .page.grid-bg { background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px); background-size: var(--grid-size) var(--grid-size); }
+  /* ===== Modos de vista (Hoja / Lista Y / Lista X / Cuadrícula) ===== */
+  .pgx { position: relative; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.12); overflow: hidden; flex: none; pointer-events: none !important; }
+  .pgx img { width: 100%; height: 100%; display: block; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+  body.vm-multi #stage { gap: 18px; }
+  body.vm-multi #stage .page { margin-bottom: 0; flex: none; outline: 3px solid var(--accent); }
+  body.vm-x #stage { flex-direction: row; align-items: flex-start; }
+  body.vm-g #stage { flex-direction: row; flex-wrap: wrap; align-items: flex-start; align-content: flex-start; }
+  .rb-vm-c { opacity: .45; }
+  body.vm-g .rb-vm-c { opacity: 1; }
   .shadow-layer { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .shadow-layer { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
   .el-shadow { position: absolute; pointer-events: none; mix-blend-mode: darken; }
@@ -717,7 +726,7 @@
   #posterModal.t-fold .pe-tl.pe-fold svg { transform: rotate(180deg); }
   #posterModal.t-fold #peTools { display: none; }
   #posterModal .pe-r .ps-hint { font-size: 9.5px; margin-top: 6px; }
-  #posterModal .pe-r #psExactBox, #posterModal .pe-r #psOptimalBox, #posterModal .pe-r #psGridBox { flex-direction: column; }
+  #posterModal .pe-r #psExactBox, #posterModal .pe-r #psGridBox { flex-direction: column; }
   /* sliders */
   #posterModal input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; display: block; width: 100%; min-width: 0; height: 22px; min-height: 22px; margin: 0; padding: 0; touch-action: none; --fill: 50%; }
   #posterModal input[type=range]::-webkit-slider-runnable-track { height: 5px; border-radius: 99px; background: linear-gradient(to right, var(--accent) var(--fill), color-mix(in srgb, var(--muted) 35%, transparent) var(--fill)); }
@@ -1210,7 +1219,6 @@
   #ctxPop .subgroup-header { display: none !important; }
 
   /* ===== Fase 5: panel derecho (Propiedades / Capas) ===== */
-  #moreMenuBtn { display: none !important; }
   #rightPanel { display: none; flex-direction: column; background: var(--panel); border-left: 1px solid var(--line); min-height: 0; z-index: 55; touch-action: auto; }
   #rightPanel.open { display: flex; }
   @media (min-width: 850px) { #rightPanel { width: 270px; min-width: 270px; } }
@@ -1351,9 +1359,6 @@
       <button class="icon-btn" id="ribbonCollapseBtn" title="Contraer o mostrar la cinta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
       <button class="icon-btn" id="panelsToggleBtn" hidden title="Mostrar u ocultar paneles laterales"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
       <button class="icon-btn" id="rightPanelBtn" title="Panel de capas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
-      <button class="icon-btn" id="moreMenuBtn" title="Más opciones">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-    </button>
     </div>
     <div id="ribbon">
       <div class="rb-tabs"><button type="button" data-rt="file">Archivo</button><button type="button" data-rt="home">Inicio</button><button type="button" data-rt="insert">Insertar</button><button type="button" data-rt="design">Diseño</button><button type="button" data-rt="layout">Disposición</button><button type="button" data-rt="refs">Referencias</button><button type="button" data-rt="view">Vista</button><button type="button" data-rt="hf" id="hfTabBtn">Encabezado</button><button type="button" class="rb-ctx" data-rt="ctxImg">Imagen</button><button type="button" class="rb-ctx" data-rt="ctxTxt">Texto</button><button type="button" class="rb-ctx" data-rt="ctxShp">Forma</button><div class="rb-scope"><button type="button" id="dcAll" class="active" title="Aplicar a todas las hojas">Todas</button><button type="button" id="dcOne" title="Aplicar solo a esta hoja">Hoja</button></div></div>
@@ -1369,7 +1374,7 @@
 </div><div class="rb-gl">Fuente</div></div>
 <div class="rb-g"><div class="rb-gb two">
 <div class="rb-r"><button type="button" data-da="left" title="Alinear a la izquierda"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h12M3 18h16"/></svg></button><button type="button" data-da="right" title="Alinear a la derecha"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M9 12h12M5 18h16"/></svg></button><button type="button" data-da="center" title="Centrar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M6 12h12M4 18h16"/></svg></button><button type="button" data-da="justify" title="Justificar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><span class="rb-sep"></span><button type="button" data-dl="none" title="Sin lista">∅</button><button type="button" data-dl="bullet" title="Viñetas">•</button><button type="button" data-dl="number" title="Numeración">1.</button></div>
-<div class="rb-r"><label class="rb-n" title="Sangría izquierda (cm)">Izq<input type="number" data-dt="indL" data-z="1" step="0.25" min="0" title="Sangría izquierda (cm)"></label><label class="rb-n" title="Sangría derecha (cm)">Der<input type="number" data-dt="indR" data-z="1" step="0.25" min="0" title="Sangría derecha (cm)"></label><label class="rb-n" title="Sangría primera línea (cm)">1ª<input type="number" data-dt="indent" data-k="10" data-z="1" step="0.25" min="0" title="Sangría primera línea (cm)"></label><label class="rb-n" title="Espaciado antes (pt)">Ant.<input type="number" data-dt="parBef" data-z="1" step="1" min="0" title="Espaciado antes (pt)"></label><label class="rb-n" title="Espaciado después (pt)">Desp.<input type="number" data-dt="parGap" data-z="1" step="1" min="0" title="Espaciado después (pt)"></label><label class="rb-n" title="Interlineado">Int.<input type="number" data-dt="lh" list="dcLh" min="0.8" max="4" step="0.05" title="Interlineado"></label></div>
+<div class="rb-r"><label class="rb-n" title="Sangría izquierda (cm)">Izq<input type="number" data-dt="indL" data-z="1" step="0.25" min="0" title="Sangría izquierda (cm)"></label><label class="rb-n" title="Sangría derecha (cm)">Der<input type="number" data-dt="indR" data-z="1" step="0.25" min="0" title="Sangría derecha (cm)"></label><label class="rb-n" title="Sangría primera línea (cm)">1ª<input type="number" data-dt="indent" data-k="10" data-z="1" step="0.25" min="0" title="Sangría primera línea (cm)"></label><label class="rb-n" title="Espaciado antes (pt)">Ant.<input type="number" data-dt="parBef" data-z="1" step="1" min="0" title="Espaciado antes (pt)"></label><label class="rb-n" title="Espaciado después (pt)">Desp.<input type="number" data-dt="parGap" data-z="1" step="1" min="0" title="Espaciado después (pt)"></label><label class="rb-n" title="Interlineado">Int.<input type="number" data-dt="lh" min="0.8" max="4" step="0.05" inputmode="decimal" style="width:46px!important" title="Interlineado (escribe el valor que quieras, de 0.8 a 4)"></label><span class="rb-sep"></span><button type="button" data-lhp="1" title="Interlineado sencillo">1</button><button type="button" data-lhp="1.15" title="Interlineado 1.15">1.15</button><button type="button" data-lhp="1.5" title="Interlineado 1.5">1.5</button><button type="button" data-lhp="2" title="Interlineado doble">2</button></div>
 </div><div class="rb-gl">Párrafo</div></div>
 <div class="rb-g"><div class="rb-gb two">
 <div class="rb-r"><button type="button" data-px="undoBtn" title="Deshacer" disabled><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg><span>Deshacer</span></button><button type="button" data-px="redoBtn" title="Rehacer" disabled><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg><span>Rehacer</span></button><button type="button" id="dcRemove" class="rb-dng" title="Quitar el texto del documento de las hojas"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg><span>Quitar texto</span></button></div>
@@ -1377,7 +1382,7 @@
 </div><div class="rb-gl">Edición</div></div>
 <datalist id="dcSizes"><option value="8"><option value="9"><option value="10"><option value="11"><option value="12"><option value="14"><option value="16"><option value="18"><option value="20"><option value="24"><option value="28"><option value="36"><option value="48"><option value="72"></datalist><datalist id="dcLh"><option value="1"><option value="1.15"><option value="1.5"><option value="2"><option value="2.5"><option value="3"></datalist>
 </div>
-      <div class="rb-pane rb-groups" data-rp="insert" style="display:none"><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" id="insertBtn" title="Texto y formas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span>Texto y formas</span></button><button type="button" class="rb-big" id="openBatchBtn" title="Imágenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Imágenes</span></button></div><div class="rb-gl">Contenido</div></div><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" data-px="openReorgBtn" title="Reorganizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Reorganizar</span></button></div><div class="rb-gl">Herramientas</div></div><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" id="hfRibbonBtn" title="Encabezado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16"/></svg><span>Encabezado</span></button><button type="button" class="rb-big" id="hfRibbonFtBtn" title="Pie de página"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 16h16"/></svg><span>Pie de página</span></button></div><div class="rb-gl">Encabezado y pie</div></div><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" data-px="addPageBtn" title="Nueva hoja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15h6"/></svg><span>Nueva hoja</span></button><button type="button" class="rb-big" data-px="duplicatePageBtn" title="Duplicar hoja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg><span>Duplicar</span></button><button type="button" class="rb-big rb-dng" data-px="delPageBtn" title="Eliminar hoja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg><span>Eliminar</span></button></div><div class="rb-gl">Página</div></div></div>
+      <div class="rb-pane rb-groups" data-rp="insert" style="display:none"><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" id="insertBtn" title="Texto y formas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span>Texto y formas</span></button><button type="button" class="rb-big" id="openBatchBtn" title="Imágenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Imágenes</span></button></div><div class="rb-gl">Contenido</div></div><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" data-px="openReorgBtn" title="Reorganizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Reorganizar</span></button></div><div class="rb-gl">Herramientas</div></div><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" id="hfRibbonBtn" title="Encabezado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16"/></svg><span>Encabezado</span></button><button type="button" class="rb-big" id="hfRibbonFtBtn" title="Pie de página"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 16h16"/></svg><span>Pie de página</span></button><button type="button" class="rb-big" id="hfRibbonCtBtn" title="Centro de página"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M4 16h16"/></svg><span>Centro de página</span></button></div><div class="rb-gl">Encabezado y pie</div></div><div class="rb-g"><div class="rb-gb"><button type="button" class="rb-big" data-px="addPageBtn" title="Nueva hoja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15h6"/></svg><span>Nueva hoja</span></button><button type="button" class="rb-big" data-px="duplicatePageBtn" title="Duplicar hoja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg><span>Duplicar</span></button><button type="button" class="rb-big rb-dng" data-px="delPageBtn" title="Eliminar hoja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg><span>Eliminar</span></button></div><div class="rb-gl">Página</div></div></div>
       <div class="rb-pane rb-flat" data-rp="design" style="display:none">
         <div class="rb-row"><label class="rb-f rb-sw" title="Activar o quitar el fondo de la hoja">Fondo<input type="checkbox" data-dg="bgon" class="dg-switch"></label><label class="rb-f">Color<input type="color" data-dg="c1" value="#ffffff"></label><label class="rb-f">Color 2<input type="color" data-dg="c2" value="#dbeafe"></label><label class="rb-f">Áng.<input type="number" data-dg="ang" value="180" step="15"></label><label class="rb-f" style="flex-direction:row;align-items:center;gap:3px;font-size:10px"><input type="checkbox" data-dg="on"> Degradado</label></div>
       </div>
@@ -1420,7 +1425,7 @@
         </div><div class="rb-gl">Texto</div></div>
         <div class="rb-g" data-hfg="text" style="order:-7;display:none"><div class="rb-gb two">
           <div class="rb-r"><button type="button" data-hfa="tb:strike" title="Tachado"><s>ab</s></button><button type="button" data-hfa="tb:caps" title="Mayúsculas">Aa</button><label class="rb-c" title="Resaltado"><b class="hl">ab</b><input type="color" data-ep="tx.hl"></label><button type="button" data-hfa="hlclear" title="Quitar resaltado">✕</button></div>
-          <div class="rb-r"><label class="rb-n" title="Espaciado entre letras">Esp.<input type="number" style="width:44px!important" data-ep="tx.ls" step="1" min="-5" max="40"></label><label class="rb-n" title="Interlineado">Inter.<input type="number" style="width:44px!important" data-ep="tx.lh" step="0.1" min="0.8" max="2.5"></label></div>
+          <div class="rb-r"><label class="rb-n" title="Espaciado entre letras">Esp.<input type="number" style="width:44px!important" data-ep="tx.ls" step="1" min="-5" max="40"></label><label class="rb-n" title="Interlineado">Inter.<input type="number" style="width:44px!important" data-ep="tx.lh" step="0.05" min="0.8" max="4" inputmode="decimal"></label></div>
         </div><div class="rb-gl">Estilo</div></div>
         <div class="rb-g" data-hfg="text" style="order:-7;display:none"><div class="rb-gb two">
           <div class="rb-r"><button type="button" data-hfa="fx:shadow" title="Sombra">Sombra</button><button type="button" data-hfa="fx:soft" title="Sombra suave">Suave</button><button type="button" data-hfa="fx:outline" title="Borde del texto">Borde</button><button type="button" data-hfa="fx:glow" title="Brillo">Brillo</button><button type="button" class="rb-dng" data-hfa="fx:none" title="Quitar borde y sombra">Quitar</button></div>
@@ -1443,7 +1448,7 @@
         </div><div class="rb-gl">Imagen</div></div>
 
         <div class="rb-g"><div class="rb-gb">
-          <label class="rb-f"><span id="hfEdgeLbl">Sup.</span><input type="number" data-sp="edge" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f">Izq.<input type="number" data-sp="ml" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f">Der.<input type="number" data-sp="mr" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f">Largo<input type="number" data-sp="len" min="0.5" step="0.1" inputmode="decimal"></label>
+          <label class="rb-f" data-hfs="hf"><span id="hfEdgeLbl">Sup.</span><input type="number" data-sp="edge" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f" data-hfs="cen" style="display:none">Sup.<input type="number" data-sp="mt" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f" data-hfs="cen" style="display:none">Inf.<input type="number" data-sp="mb" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f">Izq.<input type="number" data-sp="ml" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f">Der.<input type="number" data-sp="mr" min="0" step="0.1" inputmode="decimal"></label><label class="rb-f" data-hfs="hf">Largo<input type="number" data-sp="len" min="0.5" step="0.1" inputmode="decimal"></label>
         </div><div class="rb-gl">Márgenes y largo (cm)</div></div>
         <div class="rb-g"><div class="rb-gb two">
           <div class="rb-r"><label class="rb-sw" title="Mostrar u ocultar en todas las hojas"><input type="checkbox" data-sp="on"><i></i><span>Mostrar</span></label></div>
@@ -1454,7 +1459,7 @@
           <div class="rb-r"><label class="rb-n">Desde hoja<input type="number" data-sp="from" min="1" step="1"></label><label class="rb-n" title="0 = hasta la última">Hasta hoja<input type="number" data-sp="to" min="0" step="1"></label></div>
           <div class="rb-r"><span style="font-size:10px;color:var(--muted)">Solo texto, imágenes y formas</span></div>
         </div><div class="rb-gl">Hojas de texto y formas</div></div>
-        <div class="rb-g"><div class="rb-gb"><label class="rb-sw" title="Activar o quitar la numeración de página"><input type="checkbox" data-np="on"><i></i><span>Nº de página</span></label></div><div class="rb-gl" id="hfNumLbl">Numeración</div></div>
+        <div class="rb-g" data-hfg="num"><div class="rb-gb"><label class="rb-sw" title="Activar o quitar la numeración de página"><input type="checkbox" data-np="on"><i></i><span>Nº de página</span></label></div><div class="rb-gl" id="hfNumLbl">Numeración</div></div>
         <div class="rb-g" data-hfg="numon" style="display:none"><div class="rb-gb two">
           <div class="rb-r"><select data-np="style" title="Estilo de numeración"><option value="1">1, 2, 3</option><option value="01">01, 02, 03</option><option value="001">001, 002</option><option value="i">i, ii, iii</option><option value="I">I, II, III</option><option value="a">a, b, c</option><option value="A">A, B, C</option></select><select data-np="fmtSel" title="Formato del número"><option value="{n}">1</option><option value="- {n} -">- 1 -</option><option value="Página {n}">Página 1</option><option value="Pág. {n}">Pág. 1</option><option value="Hoja {n}">Hoja 1</option><option value="Página {n} de {total}">Página 1 de N</option><option value="{n} / {total}">1 / N</option><option value="{n} de {total}">1 de N</option><option value="({n})">(1)</option><option value="[{n}]">[1]</option><option value="__c">Personalizado…</option></select></div>
           <div class="rb-r"><input type="text" data-np="fmt" placeholder="Ej: Pág. {n} de {total}" title="Usa {n} para el número y {total} para el total" style="width:150px;display:none"></div>
@@ -1468,6 +1473,10 @@
         </div><div class="rb-gl">Aspecto del número</div></div>
       </div>
       <div class="rb-pane rb-groups" data-rp="view" style="display:none">
+<div class="rb-g"><div class="rb-gb two">
+<div class="rb-r"><button type="button" data-vm="single" title="Una hoja a la vez">Hoja</button><button type="button" data-vm="listY" title="Todas las hojas en vertical, se desplazan con el dedo">Lista Y</button><button type="button" data-vm="listX" title="Todas las hojas en horizontal">Lista X</button></div>
+<div class="rb-r"><button type="button" data-vm="grid" title="Varias hojas por fila, las demás hacia abajo">Cuadrícula</button><label class="rb-n rb-vm-c" title="Hojas por fila en la cuadrícula">Col.<input type="number" data-vmc min="2" max="8" step="1" value="2"></label></div>
+</div><div class="rb-gl">Modo de vista</div></div>
 <div class="rb-g"><div class="rb-gb two">
 <div class="rb-r"><label class="rb-sw" title="Mostrar la barra de miniaturas"><input type="checkbox" data-vw="thumbs"><i></i><span>Miniaturas</span></label><label class="rb-sw" title="Mostrar la malla"><input type="checkbox" data-vw="grid"><i></i><span>Malla</span></label></div>
 <div class="rb-r"><label class="rb-sw" title="Guías inteligentes de alineación"><input type="checkbox" data-vw="guides"><i></i><span>Guías</span></label><label class="rb-sw" title="Ajustar a la malla (snap)"><input type="checkbox" data-vw="snap"><i></i><span>Ajuste</span></label><button type="button" data-px="gridCfgBtn" title="Configurar malla y guías"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></button></div>
@@ -2325,7 +2334,7 @@
   function hfDefaults() {
     const nm = () => ({ on: false, align: 'right', style: '1', fmt: '{n}', custom: false, first: 1, from: 1, to: 0, last: 0, font: 'Arial', size: 11, color: '#444444', bold: false, italic: false });
     const blk = (o) => Object.assign({ on: true, ml: 1.5, mr: 1.5, len: 2, opacity: 100, textOn: true, from: 1, to: 0, items: [], num: nm() }, o || {});
-    return { header: blk({ mt: 1 }), footer: blk({ mb: 1 }) };
+    return { header: blk({ mt: 1 }), footer: blk({ mb: 1 }), center: blk({ mt: 0.5, mb: 0.5 }) };
   }
   function hfNorm(h) {
     const d = hfDefaults(); h = (h && typeof h === 'object') ? h : {};
@@ -2338,14 +2347,14 @@
       o.first = Math.round(nn(n0.first, 1, -999, 99999)); o.from = Math.max(1, Math.round(nn(n0.from, 1, 1, 9999))); o.to = Math.max(0, Math.round(nn(n0.to, 0, 0, 9999))); o.last = Math.max(0, Math.round(nn(n0.last, 0, 0, 99999)));
       o.font = (typeof n0.font === 'string' && n0.font) ? n0.font : 'Arial'; o.size = nn(n0.size, 11, 4, 200);
       o.color = /^#[0-9a-fA-F]{6}$/.test(n0.color || '') ? n0.color : '#444444'; o.bold = n0.bold === true; o.italic = n0.italic === true; return o; };
-    ['header', 'footer'].forEach(k => {
+    ['header', 'footer', 'center'].forEach(k => {
       const s0 = (h[k] && typeof h[k] === 'object') ? h[k] : {}, o = Object.assign({}, d[k]);
       const old = Object.keys(s0).length > 0 && !('len' in s0); // formato anterior (v44 o menor)
       o.items = Array.isArray(s0.items) ? s0.items : [];
       o.on = old ? o.items.length > 0 : s0.on !== false;
       o.ml = nn(old ? h.inner : s0.ml, d[k].ml, 0, 100); o.mr = nn(old ? h.outer : s0.mr, d[k].mr, 0, 100);
       o.len = nn(old ? s0.h : s0.len, d[k].len, 0.5, 100);
-      if (k === 'header') o.mt = nn(old ? undefined : s0.mt, d[k].mt, 0, 100); else o.mb = nn(old ? undefined : s0.mb, d[k].mb, 0, 100);
+      if (k !== 'footer') o.mt = nn(old ? undefined : s0.mt, d[k].mt, 0, 100); if (k !== 'header') o.mb = nn(old ? undefined : s0.mb, d[k].mb, 0, 100);
       o.opacity = nn(s0.opacity, 100, 0, 100); o.textOn = s0.textOn !== false;
       o.from = Math.max(1, Math.round(nn(s0.from, 1, 1, 9999))); o.to = Math.max(0, Math.round(nn(s0.to, 0, 0, 9999)));
       let n0 = s0.num; if (!n0 && h.num && typeof h.num === 'object') { n0 = Object.assign({}, h.num); n0.on = h.num.on === true && h.num.where === k; } // formato anterior: una sola numeración
@@ -2354,6 +2363,7 @@
           if (it && it.type === 'text' && String(it.text || '').trim() === '{n}') { const t = it.tx || {}; if (!o.num.on) { o.num.on = true; o.num.align = ['left', 'center', 'right'].includes(t.align) ? t.align : 'center'; if (t.font) o.num.font = t.font; if (t.size) o.num.size = nn(t.size, 11, 4, 200); if (/^#[0-9a-fA-F]{6}$/.test(t.color || '')) o.num.color = t.color; o.num.bold = !!t.bold; o.num.italic = !!t.italic; } }
           else keep.push(it); });
         o.items = keep; }
+      if (k === 'center') o.num.on = false;
       out[k] = o;
     });
     return out;
@@ -2369,12 +2379,16 @@
   let elCounter = 1, pageCounter = 1;
   let PX_PER_CM = 10, zoomScale = 0.7;
   let panX = 0, panY = 0;
+  let vMode = 'single', vCols = 2, vmLastIdx = -1, vmKeepPan = false, vmPrevZoom = 0, vmInertia = 0, vmBusy = false, vmDirty = false;
+  try { const m0 = localStorage.getItem('mw-vmode'); if (['single', 'listY', 'listX', 'grid'].includes(m0)) vMode = m0; const c0 = parseInt(localStorage.getItem('mw-vcols'), 10); if (c0 >= 2 && c0 <= 8) vCols = c0; } catch (_) {}
+  const vmNodes = new Map();
   let undoStack = [], redoStack = [];
   let isHistoryAction = false;
   let clipboard = [], valuesClipboard = null;
   let lastGeneratedPdfBlob = null;
   const imgCache = new Map();
   const thumbCache = new Map();
+  { const _tcc = thumbCache.clear.bind(thumbCache); thumbCache.clear = () => { vmNodes.forEach(g => { g._sig = null; }); return _tcc(); }; }
   let batchOrderedFiles = [];
   let scanCapturedDataUrl = null;
   const DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
@@ -2649,10 +2663,11 @@ function undo() {
     const wrapper = $('stage-wrapper'); if (!wrapper) return;
     const paper = getPaperCm();
     const wrapperW = wrapper.clientWidth, wrapperH = wrapper.clientHeight;
+    const vp0 = vmPos(vMode === 'single' ? 0 : state.currentPageIndex);
     const renderedW = paper.w * PX_PER_CM * zoomScale;
     const renderedH = paper.h * PX_PER_CM * zoomScale;
-    panX = (wrapperW - renderedW) / 2;
-    panY = Math.max(20, (wrapperH - renderedH) / 2);
+    panX = (wrapperW - renderedW) / 2 - vp0.x * zoomScale;
+    panY = Math.max(20, (wrapperH - renderedH) / 2) - vp0.y * zoomScale;
   }
   /* Escala de los tiradores: tamaño constante en pantalla (1/zoom), y más chicos si el elemento es pequeño. */
   function handleScaleFor(el) {
@@ -2682,6 +2697,117 @@ function undo() {
     applyStageTransform();
     const qz = $("quickZoomVal");
     if (qz) qz.textContent = Math.round(zoomScale * 100) + "%";
+  }
+  /* ====== Modos de vista ====== */
+  function vmColsEff() { return Math.max(1, Math.min(vCols, state.pages.length)); }
+  function vmPos(i) {            // posición (px, sin zoom) de la hoja i dentro del stage
+    const paper = getPaperCm(), pw = paper.w * PX_PER_CM, ph = paper.h * PX_PER_CM, G = 18;
+    if (vMode === 'listY') return { x: 0, y: i * (ph + G) };
+    if (vMode === 'listX') return { x: i * (pw + G), y: 0 };
+    if (vMode === 'grid') { const c = vmColsEff(); return { x: (i % c) * (pw + G), y: Math.floor(i / c) * (ph + G) }; }
+    return { x: 0, y: 0 };
+  }
+  const vmRep = (k, v) => (typeof v === 'string' && v.length > 200) ? v.length + ':' + v.slice(0, 40) + v.slice(-40) : v;
+  function vmSig(p, i, n, W) {
+    let s; try { s = JSON.stringify(p, vmRep); } catch (_) { s = String(Math.random()); }
+    const pp = getPaperCm(); return i + '/' + n + '/' + W + '/' + pp.w + 'x' + pp.h + '|' + s;
+  }
+  function vmBuild(stage, pageDiv, paper) {
+    const B = document.body, multi = vMode !== 'single';
+    B.classList.toggle('vm-multi', multi);
+    B.classList.toggle('vm-y', vMode === 'listY'); B.classList.toggle('vm-x', vMode === 'listX'); B.classList.toggle('vm-g', vMode === 'grid');
+    if (!multi) { stage.style.width = ''; return; }
+    const pw = paper.w * PX_PER_CM, ph = paper.h * PX_PER_CM, n = state.pages.length, cur = state.currentPageIndex, G = 18;
+    const cols = vMode === 'listX' ? n : vMode === 'grid' ? vmColsEff() : 1;
+    stage.style.width = vMode === 'listY' ? '' : (cols * pw + (cols - 1) * G) + 'px';
+    const ids = new Set(state.pages.map(p => p.id));
+    vmNodes.forEach((g, id) => { if (!ids.has(id)) vmNodes.delete(id); });
+    for (let i = 0; i < n; i++) {
+      if (i === cur) continue;
+      const p = state.pages[i];
+      let g = vmNodes.get(p.id);
+      if (!g) { g = document.createElement('div'); g.className = 'pgx'; vmNodes.set(p.id, g); }
+      g.dataset.vi = i; g.style.width = pw + 'px'; g.style.height = ph + 'px';
+      if (i < cur) stage.insertBefore(g, pageDiv); else stage.appendChild(g);
+    }
+    vmFill();
+  }
+  async function vmFill() {      // genera (en segundo plano) la imagen de las hojas que no son la activa
+    if (vMode === 'single') return;
+    if (vmBusy) { vmDirty = true; return; }
+    vmBusy = true;
+    try {
+      do {
+        vmDirty = false;
+        const cur = state.currentPageIndex, n = state.pages.length, paper = getPaperCm();
+        const W = Math.min(1400, Math.round(paper.w * PX_PER_CM * DPR * 1.25));
+        const jobs = [];
+        $('stage').querySelectorAll('.pgx').forEach(g => {
+          const i = +g.dataset.vi, p = state.pages[i]; if (!p) return;
+          const sig = vmSig(p, i, n, W); if (g._sig !== sig) jobs.push({ g, i, sig });
+        });
+        jobs.sort((a, b) => Math.abs(a.i - cur) - Math.abs(b.i - cur));
+        for (const j of jobs) {
+          if (vmDirty) break;
+          let url = null;
+          try { const cv = await renderPageToCanvas(j.i, null, j.i + 1, n, W); url = cv.toDataURL('image/jpeg', 0.88); } catch (_) {}
+          if (url) {
+            let img = j.g.firstChild;
+            if (!img) { img = document.createElement('img'); img.draggable = false; j.g.appendChild(img); }
+            img.src = url;
+          }
+          j.g._sig = j.sig;
+        }
+      } while (vmDirty);
+    } finally { vmBusy = false; }
+  }
+  function vmTapPage(cx, cy) {   // toque sobre una hoja que no es la activa → la selecciona
+    if (hfEd.on) return false;
+    const gs = $('stage').querySelectorAll('.pgx');
+    for (const g of gs) {
+      const r = g.getBoundingClientRect();
+      if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
+        const i = +g.dataset.vi; if (!(i >= 0 && i < state.pages.length)) return false;
+        vmKeepPan = true; selectedIds = new Set(); state.currentPageIndex = i;
+        sfx.page(); saveState(); renderAll(); return true;
+      }
+    }
+    return false;
+  }
+  function vmStopInertia() { if (vmInertia) { cancelAnimationFrame(vmInertia); vmInertia = 0; } }
+  function vmFling(vx, vy) {
+    vmStopInertia(); let last = performance.now();
+    const step = (t) => {
+      const dt = Math.min(32, t - last); last = t;
+      panX += vx * dt; panY += vy * dt;
+      const k = Math.pow(0.94, dt / 16); vx *= k; vy *= k;
+      applyStageTransform();
+      vmInertia = Math.hypot(vx, vy) > 0.02 ? requestAnimationFrame(step) : 0;
+    };
+    vmInertia = requestAnimationFrame(step);
+  }
+  function vmFitGrid() {
+    const wr = $('stage-wrapper'); if (!wr) return;
+    const pw = getPaperCm().w * PX_PER_CM, c = vmColsEff();
+    zoomScale = Math.max(0.2, Math.min(2.0, (wr.clientWidth - 24) / (c * pw + (c - 1) * 18)));
+  }
+  function setViewMode(m) {
+    if (!['single', 'listY', 'listX', 'grid'].includes(m)) m = 'single';
+    if (m === vMode) return;
+    vmStopInertia();
+    const was = vMode;
+    recomputeScale();
+    if (was !== 'grid' && m === 'grid') vmPrevZoom = zoomScale;
+    vMode = m;
+    try { localStorage.setItem('mw-vmode', m); } catch (_) {}
+    if (m === 'grid') vmFitGrid();
+    else if (was === 'grid' && vmPrevZoom) { zoomScale = vmPrevZoom; vmPrevZoom = 0; }
+    vmLastIdx = -1; recenterStage(); renderAll();
+  }
+  function setViewCols(v) {
+    const c = Math.max(2, Math.min(8, parseInt(v, 10) || 2));
+    vCols = c; try { localStorage.setItem('mw-vcols', String(c)); } catch (_) {}
+    if (vMode === 'grid') { recomputeScale(); vmFitGrid(); vmLastIdx = -1; recenterStage(); renderAll(); }
   }
   function currentPage() { return state.pages[state.currentPageIndex]; }
   function findEl(id) { for (const p of state.pages) for (const e of p.els) if (e.id === id) return e; return null; }
@@ -2923,6 +3049,10 @@ function undo() {
     recomputeScale();
     if (PX_PER_CM <= 0 || !Number.isFinite(PX_PER_CM)) return;
     const paper = getPaperCm();
+    if (vMode !== 'single') {   // en modos de lista: al cambiar de hoja (miniaturas, botones…) se desplaza hasta ella
+      if (vmLastIdx !== state.currentPageIndex) { if (vmKeepPan) vmKeepPan = false; else recenterStage(); }
+      vmLastIdx = state.currentPageIndex;
+    } else vmLastIdx = -1;
     const stage = $("stage");
     stage.innerHTML = "";
     stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
@@ -2943,14 +3073,20 @@ function undo() {
     { const hl = buildHFLayer(state.currentPageIndex); if (hl) pageDiv.appendChild(hl); }
     addGridAndGuides(pageDiv, paper, cp);
     if (hfEd.on) {
-      const bd = hfBand(), band = document.createElement("div");
-      band.className = "hf-band";
-      band.style.cssText = `position:absolute;left:${bd.x0 * PX_PER_CM}px;top:${bd.y0 * PX_PER_CM}px;width:${bd.W * PX_PER_CM}px;height:${bd.H * PX_PER_CM}px;pointer-events:none;z-index:3;box-sizing:border-box;background:rgba(79,124,255,.09);border:1.5px dashed rgba(79,124,255,.85);`;
-      const tag = document.createElement("div");
-      tag.textContent = (hfEd.sec === 'header' ? 'Encabezado' : 'Pie de página') + ' · ' + (+bd.W.toFixed(2)) + ' × ' + (+bd.H.toFixed(2)) + ' cm';
-      tag.style.cssText = `position:absolute;left:2px;${hfEd.sec === 'header' ? 'bottom:-14px' : 'top:-14px'};font:600 9px/12px sans-serif;color:rgba(79,124,255,.95);white-space:nowrap;`;
-      band.appendChild(tag);
-      pageDiv.appendChild(band);
+      const drawBand = (sec, active) => {
+        const bd = hfBox(sec), band = document.createElement("div");
+        band.className = "hf-band";
+        const col = active ? '79,124,255' : '120,120,120';
+        band.style.cssText = `position:absolute;left:${bd.x0 * PX_PER_CM}px;top:${bd.y0 * PX_PER_CM}px;width:${bd.W * PX_PER_CM}px;height:${bd.H * PX_PER_CM}px;pointer-events:none;z-index:${active ? 3 : 2};box-sizing:border-box;background:rgba(${col},${active ? .09 : .07});border:1.5px dashed rgba(${col},.85);`;
+        const tag = document.createElement("div");
+        tag.textContent = hfName(sec) + ' · ' + (+bd.W.toFixed(2)) + ' × ' + (+bd.H.toFixed(2)) + ' cm';
+        const inside = sec === 'center' || sec === 'header' && false;
+        tag.style.cssText = `position:absolute;left:2px;${sec === 'header' ? 'bottom:-14px' : sec === 'footer' ? 'top:-14px' : 'top:2px'};font:600 9px/12px sans-serif;color:rgba(${col},.95);white-space:nowrap;`;
+        band.appendChild(tag);
+        pageDiv.appendChild(band);
+      };
+      if (hfEd.sec === 'center') { drawBand('header', false); drawBand('footer', false); }
+      drawBand(hfEd.sec, true);
     }
 
     cp.els.forEach(el => {
@@ -2986,6 +3122,7 @@ function undo() {
     });
 
     stage.appendChild(pageDiv);
+    vmBuild(stage, pageDiv, paper);
     $("quickPageLabel").textContent = `${state.currentPageIndex + 1}/${state.pages.length}`;
     document.body.classList.toggle("multiselect-mode", multiSelectMode && selectedIds.size > 0);
     syncInspector();
@@ -4724,8 +4861,10 @@ function updateThumbnails() {
           e.target.closest('.modal') || e.target.closest('.confirm-modal') ||
           e.target.closest('.thumbnails-bar') || e.target.closest('.context-menu') ||
           e.target.closest('.pdf-reader')) return;
+      vmStopInertia();
       gesture.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (gesture.pointers.size === 2) {
+        gesture.vp = null;
         clearTimeout(gesture.selTimer);
         cancelTapTimer(); gesture.tap.fired = true; gesture.drag.active = false; gesture.resize.active = false;
         if (gesture.marquee.box) { gesture.marquee.box.remove(); gesture.marquee.box = null; }
@@ -4787,6 +4926,8 @@ function updateThumbnails() {
           gesture.marquee.startClientX = e.clientX;
           gesture.marquee.startClientY = e.clientY;
         }
+        gesture.vp = (vMode !== 'single' && !multiSelectMode && (target === 'background' || (target === 'element' && !isSelected(elId))))
+          ? { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, on: false, vx: 0, vy: 0, t: performance.now() } : null;
         try { wrapper.setPointerCapture(e.pointerId); } catch (_) {}
       }
     });
@@ -4814,6 +4955,17 @@ function updateThumbnails() {
       }
       const dx = e.clientX - gesture.tap.startX, dy = e.clientY - gesture.tap.startY;
       const movedDist = Math.hypot(dx, dy);
+      /* modos de lista: un dedo sobre el fondo (o una hoja) desplaza las hojas */
+      if (gesture.vp && vMode !== 'single' && !gesture.tap.fired && !gesture.marquee.active && !gesture.drag.active && !gesture.resize.active) {
+        const v = gesture.vp;
+        if (!v.on && movedDist > 8) { v.on = true; cancelTapTimer(); clearTimeout(gesture.selTimer); }
+        if (v.on) {
+          const now = performance.now(), dt = Math.max(1, now - v.t), mx = e.clientX - v.lx, my = e.clientY - v.ly;
+          panX += mx; panY += my; v.vx = 0.6 * (mx / dt) + 0.4 * v.vx; v.vy = 0.6 * (my / dt) + 0.4 * v.vy;
+          v.lx = e.clientX; v.ly = e.clientY; v.t = now;
+          applyStageTransform(); e.preventDefault(); return;
+        }
+      }
       if (multiSelectMode && !multiLock && !gesture.marquee.active && !gesture.drag.active && !gesture.resize.active &&
           (gesture.tap.target === 'background' || (gesture.tap.target === 'element' && gesture.tap.elId !== null && !isSelected(gesture.tap.elId))) &&
           movedDist > 8) {
@@ -4924,6 +5076,12 @@ function updateThumbnails() {
       gesture.pointers.delete(e.pointerId);
       if (gesture.pinch.active && gesture.pointers.size < 2) gesture.pinch.active = false;
       if (gesture.pointers.size > 0) return;
+      if (gesture.vp && gesture.vp.on) {
+        const v = gesture.vp; gesture.vp = null;
+        if (performance.now() - v.t < 90 && Math.hypot(v.vx, v.vy) > 0.12) vmFling(v.vx, v.vy);
+        return;
+      }
+      gesture.vp = null;
       if (gesture.marquee.active && gesture.marquee.box) { finishMarquee(e.clientX, e.clientY); return; }
       if (gesture.resize.active) { gesture.resize.active = false; saveState(); sfx.tap(); return; }
       if (gesture.drag.active) {
@@ -5007,6 +5165,7 @@ function updateThumbnails() {
       const target = gesture.tap.target;
       const elId = gesture.tap.elId;
       if (target === 'handle') return;
+      if (vMode !== 'single' && (target === 'background' || target === null) && vmTapPage(clientX, clientY)) return;
       if (target === 'element' && elId !== null) {
         if (gesture.tap.lastTapElId === elId && now - gesture.tap.lastTapTime < 350 && findEl(elId) && findEl(elId).type === 'text') {
           gesture.tap.lastTapTime = 0; gesture.tap.lastTapElId = null;
@@ -5032,7 +5191,7 @@ function updateThumbnails() {
       }
       const dx = clientX - gesture.swipe.startX, dy = clientY - gesture.swipe.startY;
       const dt = now - gesture.swipe.startTime;
-      if (Math.abs(dx) > 80 && Math.abs(dy) < 60 && dt < 600) {
+      if (vMode === 'single' && Math.abs(dx) > 80 && Math.abs(dy) < 60 && dt < 600) {
         if (dx > 0 && state.currentPageIndex > 0) {
           state.currentPageIndex--; sfx.page(); deselectAll();
           showToast(`Página ${state.currentPageIndex + 1}`, 'info', 800);
@@ -5211,7 +5370,7 @@ ctx.restore();
         }
       } catch (err) {}
     }
-    if (pageNum !== null && totalPages !== null && !hfHasNum()) {
+    if (false && pageNum !== null && totalPages !== null && !hfHasNum()) {
       ctx.save();
       ctx.filter = 'none'; ctx.globalAlpha = 1;
       ctx.fillStyle = "#666";
@@ -7176,7 +7335,7 @@ ctx.restore();
   function updateKb() { updateKb0(); syncDone(); if (edTA) placeEd(); }
   function updateKb0() {
     const f = document.activeElement; let kt = kbTop();
-    if (f && f.closest && f.closest('#posterModal, #cpk, #ocrEditor')) { mini.classList.remove('show'); return; }
+    if (f && f.closest && f.closest('#posterModal, #cpk, #ocrEditor, #pasteBox')) { mini.classList.remove('show'); return; }
     if (f === edTA) { miniTarget = edTA; mini.querySelector('.km-l').textContent = 'Texto'; if (mv.value !== edTA.value) mv.value = edTA.value; if (kt == null || !miniDismissed) { mini.classList.add('show'); mini.style.top = Math.max(6, (kt == null ? window.innerHeight : kt) - mini.offsetHeight - 8) + 'px'; } else mini.classList.remove('show'); return; }
     if (f === mv) { if (kt == null) { mini.classList.remove('show'); return; } mini.classList.add('show'); mini.style.top = (kt - mini.offsetHeight - 8) + 'px'; return; }
     if (!isTypeField(f) || kt == null || miniDismissed === f) { mini.classList.remove('show'); return; }
@@ -7190,7 +7349,7 @@ ctx.restore();
   const kbSoon = () => [0, 120, 300, 550].forEach(ms => setTimeout(updateKb, ms));
   document.addEventListener('focusin', (e) => {
     const f = e.target; if (!isTypeField(f) || f === mv) return;
-    if (f.closest && f.closest('#posterModal, #cpk, #ocrEditor')) { if (f.tagName === 'INPUT') f.setAttribute('enterkeyhint', 'done'); mini.classList.remove('show'); return; }
+    if (f.closest && f.closest('#posterModal, #cpk, #ocrEditor, #pasteBox')) { if (f.tagName === 'INPUT') f.setAttribute('enterkeyhint', 'done'); mini.classList.remove('show'); return; }
     if (miniDismissed && miniDismissed !== f) miniDismissed = null; miniRestore.style.display = 'none';
     const saved = [];
     for (let n = f.parentElement; n; n = n.parentElement) if (n.scrollTop || n.scrollLeft || n.scrollHeight > n.clientHeight) saved.push([n, n.scrollTop, n.scrollLeft]);
@@ -7210,7 +7369,7 @@ ctx.restore();
   const editPointers = new Map();
   const editPinch = { active: false, startDist: 1, startZoom: 1, startMidX: 0, startMidY: 0, startPanX: 0, startPanY: 0 };
   function isEditGestureControl(target) {
-    return !!(target && target.closest && target.closest('#kbMini, #kbMiniRestore, #edDone, #edBar, #edBarRestore, #fmtBar, #fontPop, #txPop, #ulPop, #selMenu, #cpk, header, .inspector, .modal, .confirm-modal, .context-menu, .thumbnails-bar, button, input, select'));
+    return !!(target && target.closest && target.closest('#kbMini, #kbMiniRestore, #edDone, #edBar, #edBarRestore, #fmtBar, #fontPop, #txPop, #ulPop, #selMenu, #cpk, #pasteBox, header, .inspector, .modal, .confirm-modal, .context-menu, .thumbnails-bar, button, input, select'));
   }
   document.addEventListener('pointerdown', (e) => {
     if (!edTA || isEditGestureControl(e.target)) return;
@@ -7257,7 +7416,7 @@ ctx.restore();
 
   document.addEventListener('pointerdown', (e) => {
     // Tocar el lienzo durante la edición no debe cerrar el texto: permite reencuadrar/zoom.
-    if (edTA && !e.target.closest('#inlineEd, #kbMini, #kbMiniRestore, #edDone, #edBar, #edBarRestore, #fmtBar, #fontPop, #txPop, #ulPop, #selMenu, #cpk, #stage-wrapper, .inspector, header')) endInlineEdit();
+    if (edTA && !e.target.closest('#inlineEd, #kbMini, #kbMiniRestore, #edDone, #edBar, #edBarRestore, #fmtBar, #fontPop, #txPop, #ulPop, #selMenu, #cpk, #pasteBox, #stage-wrapper, .inspector, header')) endInlineEdit();
   }, true);
   // No desplazar ni reencuadrar la hoja al editar: se conserva el zoom y el pan elegidos.
   function revealEd() { return; }
@@ -7271,10 +7430,12 @@ ctx.restore();
     // La edición siempre sigue al texto real en la hoja; nunca se convierte en una caja flotante.
     edDock = false;
     const L = txLayout(SCR, el, z), pad = L.pad, pt = (t.valign === 'top' || el.flow) ? pad : t.valign === 'bottom' ? Math.max(pad, h - pad - L.th) : Math.max(pad, (h - L.th) / 2);
-    const _li = edTA.value.slice(0, edTA.selectionStart).split('\n').length - 1, _ln = (L.lines || []).find(l => l.pi === _li && l.first && l.il !== undefined) || null;
+    const _b0 = edTA._g ? edBase(el) : 0, _li = edTA.value.slice(_b0, Math.max(_b0, edTA.selectionStart)).split('\n').length - 1, _ln = (L.lines || []).find(l => l.pi === _li && l.first && l.il !== undefined) || null;
     const cal = (_ln && _ln.al) || t.align, cil = _ln ? _ln.il : L.il, cir = _ln ? _ln.ir : L.ir, chg = _ln ? _ln.hang : L.hang, cin = _ln ? _ln.ind : L.ind;
-    edTA.className = 'ov';
-    edTA.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;font-family:"${t.font}",sans-serif;font-size:${L.fs}px;font-weight:${t.bold ? 700 : 400};font-style:${t.italic ? 'italic' : 'normal'};letter-spacing:${t.ls / 100 * L.fs}px;line-height:${L.lh}px;text-align:${cal === 'justify' ? 'left' : cal};padding:${pt}px ${pad + cir}px 0 ${pad + cil + chg}px;text-indent:${el.cont ? 0 : cin}px;text-transform:${t.caps ? 'uppercase' : 'none'};transform:${elCss(el)};`;
+    edTA.classList.remove('dk'); edTA.classList.add('ov');
+    const _cs = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;font-family:"${t.font}",sans-serif;font-size:${L.fs}px;font-weight:${t.bold ? 700 : 400};font-style:${t.italic ? 'italic' : 'normal'};letter-spacing:${t.ls / 100 * L.fs}px;line-height:${L.lh}px;text-align:${cal === 'justify' ? 'left' : cal};padding:${pt}px ${pad + cir}px ${edTA._g ? h : 0}px ${pad + cil + chg}px;text-indent:${el.cont ? 0 : cin}px;text-transform:${t.caps ? 'uppercase' : 'none'};transform:${elCss(el)};`;
+    if (edTA._cs !== _cs) { edTA.style.cssText = _cs; edTA._cs = _cs; }
+    edAlign();
     edTA.dataset.covered = '';
     placeBar(el, kt, false); placeFmt(); syncDone();
   }
@@ -7282,15 +7443,49 @@ ctx.restore();
     const el = findEl(id); if (!el || el.type !== 'text') return;
     endInlineEdit();
     selectedIds = new Set([id]); multiSelectMode = false; editingTextId = id; renderAll();
-    const ta = document.createElement('textarea'); ta.id = 'inlineEd'; ta.value = el.text;
+    const ta = document.createElement('textarea'); ta.id = 'inlineEd'; ta._g = !!(el.flow && state.doc); ta.value = ta._g ? state.doc.text : el.text;
     document.body.appendChild(ta); edTA = ta; edPanelHidden = false; edPanY0 = null; edDock = false; placeEd();
     ta.addEventListener('input', () => { const e2 = findEl(editingTextId); if (!e2) return; if (e2.flow) { docInput(ta, e2); return; } e2.runs = adjustRuns(e2.runs, e2.text, ta.value); adjustPars(e2, e2.text, ta.value); e2.text = ta.value; sanitizeGen(e2); renderAll(); placeEd(); });
     edOrig = el.text;
     edTA.addEventListener('input', syncDone);
     ta.focus({ preventScroll: true });
-    if (selectAll) ta.select(); else ta.setSelectionRange(ta.value.length, ta.value.length);
+    if (selectAll) ta.select(); else { const p0 = ta._g ? edBase(el) + el.text.length : ta.value.length; ta.setSelectionRange(p0, p0); }
+    placeEd(); edAlign(true);
     kbSoon();
   }
+
+  /* ====== v6: selección continua entre hojas (el cuadro de edición contiene TODO el documento) ====== */
+  function edBase(el) { const d = state.doc; if (!d || !el || !el.flow) return 0; const pg = state.pages.find(p => p.els.includes(el)), r = pg && d.recs[d.pids.indexOf(pg.id)]; return r ? r.s : 0; }
+  function edNativeY(b, ta) {
+    if (!b) return 0;
+    let m = window._edMir; if (!m) { m = document.createElement('textarea'); m.tabIndex = -1; m.setAttribute('aria-hidden', 'true'); document.body.appendChild(m); window._edMir = m; }
+    const c = getComputedStyle(ta);
+    ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing', 'lineHeight', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'width', 'textIndent', 'textTransform', 'borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth', 'borderStyle'].forEach(p => { m.style[p] = c[p]; });
+    m.style.cssText += ';position:fixed;left:-9999px;top:0;height:10px;box-sizing:border-box;visibility:hidden;pointer-events:none;overflow:hidden;resize:none;';
+    const v = state.doc.text.slice(0, b); m.value = v;
+    const lh = parseFloat(c.lineHeight) || 1, H = m.scrollHeight - (parseFloat(c.paddingTop) || 0) - (parseFloat(c.paddingBottom) || 0) - (parseFloat(c.borderTopWidth) || 0) - (parseFloat(c.borderBottomWidth) || 0);
+    const lines = Math.max(1, Math.round(H / lh));
+    return (v.endsWith('\n') ? lines - 1 : lines) * lh;
+  }
+  function edAlign(force) {
+    const ta = edTA; if (!ta || !ta._g || !state.doc) return; const el = findEl(editingTextId); if (!el) return;
+    const b = edBase(el), s = ta.style, key = b + '|' + state.doc.text.length + '|' + s.width + s.fontSize + s.lineHeight + s.fontFamily + s.letterSpacing + s.padding + s.textIndent;
+    if (!force && ta._ak === key) return; ta._ak = key;
+    ta.scrollTop = edNativeY(b, ta);
+  }
+  // Al soltar el dedo: si el extremo activo de la selección quedó en otra hoja, esa hoja pasa a ser la activa
+  function edSettle() {
+    const ta = edTA; if (!ta || !ta._g || !state.doc || !state.doc.recs.length) return;
+    const d = state.doc, f = ta.selectionDirection === 'backward' ? ta.selectionStart : ta.selectionEnd;
+    let j = d.recs.findIndex(q => f <= q.e); if (j < 0) j = d.recs.length - 1;
+    const q = d.recs[j], pg = q && docPage(q.pid), el2 = pg && pg.els.find(e => e.flow);
+    if (el2 && el2.id !== editingTextId) {
+      const a = ta.selectionStart, b = ta.selectionEnd, dir = ta.selectionDirection;
+      vmKeepPan = true; docRelocate(ta, a, b); try { ta.setSelectionRange(a, b, dir); } catch (_) {}
+      edAlign(true);
+    } else edAlign(true);
+  }
+  ['pointerup', 'touchend', 'keyup'].forEach(ev => document.addEventListener(ev, () => { if (edTA && edTA._g) setTimeout(edSettle, 80); }, true));
   function endInlineEdit() {
     if (!edTA) return;
     const ta = edTA, id = editingTextId; edTA = null; editingTextId = null; ta.remove();
@@ -7345,7 +7540,7 @@ ctx.restore();
   function fmtEd(key, fn) {
     const el = findEl(editingTextId); if (!el) return;
     if (el.flow) {
-      const d = state.doc, pg = state.pages.find(p => p.els.includes(el)), r = d.recs[d.pids.indexOf(pg.id)], caret = r.s + edTA.selectionStart;
+      const d = state.doc, pg = state.pages.find(p => p.els.includes(el)), r = d.recs[d.pids.indexOf(pg.id)], caret = (edTA._g ? 0 : r.s) + edTA.selectionStart;
       d.tx[key] = fn(el.tx[key]); state.pages.forEach(p => { if (p.fo) delete p.fo[key]; });
       reflowDoc(0); docRelocate(edTA, caret);
     } else { el.tx[key] = fn(el.tx[key]); renderAll(); placeEd(); }
@@ -7355,7 +7550,7 @@ ctx.restore();
   function edCtx() {
     if (!edTA) return null; const el = findEl(editingTextId); if (!el) return null;
     let a = edTA.selectionStart, b = edTA.selectionEnd, base = 0;
-    if (el.flow) { const d = state.doc, pg = state.pages.find(p => p.els.includes(el)), r = d && pg && d.recs[d.pids.indexOf(pg.id)]; if (!r) return null; base = r.s; }
+    if (el.flow) { const d = state.doc, pg = state.pages.find(p => p.els.includes(el)), r = d && pg && d.recs[d.pids.indexOf(pg.id)]; if (!r) return null; base = edTA._g ? 0 : r.s; }
     return { el, a: base + a, b: base + b, collapsed: a === b, doc: !!el.flow };
   }
   const fmtOwner = (c) => c.doc ? state.doc : c.el, fmtText = (c) => fmtOwner(c).text;
@@ -7394,18 +7589,41 @@ ctx.restore();
     });
     o.runs = out;
   }
+  /* v21: limpia el texto pegado (Gemini, DeepSeek, Google, Word...) y lo inserta de una sola vez, aunque sean miles de palabras */
+  window.miniCleanText = function (t) {
+    return String(t == null ? '' : t)
+      .replace(/\r\n?|\u2028|\u2029/g, '\n')
+      .replace(/[\u200b\u2060\ufeff\u00ad]/g, '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/\t/g, '    ')
+      .replace(/[\u0000-\u0008\u000b\u000e-\u001f]/g, '');
+  };
   window.miniPasteStyled = function (t) {
     if (!edTA || !t) return false;
-    t = String(t).replace(/\r\n?/g, '\n');
+    t = window.miniCleanText(t); if (!t) return false;
     const c = edCtx(); if (!c) return false;
-    const o = c.doc ? state.doc : c.el, a = c.a, end = a + t.length;
-    try { edTA.focus({ preventScroll: true }); } catch (_) {}
-    let ok = false; try { ok = document.execCommand('insertText', false, t); } catch (_) {}
-    if (!ok) { try { edTA.setRangeText(t, edTA.selectionStart, edTA.selectionEnd, 'end'); edTA.dispatchEvent(new Event('input', { bubbles: true })); } catch (_) { return false; } }
-    stripRunsRange(o, a, end);
-    if (c.doc) { reflowDoc(0); docRelocate(edTA, end); }
-    else { renderAll(); placeEd(); try { edTA.setSelectionRange(end, end); } catch (_) {} }
-    syncFmt();
+    const ta = edTA, a = c.a, big = t.length > 1500;
+    try {
+      if (c.doc) {
+        const d = state.doc, oldT = d.text, pg = state.pages.find(p => p.els.includes(c.el)), k = Math.max(0, d.pids.indexOf(pg.id));
+        d.text = oldT.slice(0, c.a) + t + oldT.slice(c.b);
+        d.runs = adjustRuns(d.runs, oldT, d.text); adjustPars(d, oldT, d.text);
+        stripRunsRange(d, a, a + t.length);
+        reflowDoc(Math.max(0, k - 1)); docRelocate(ta, a + t.length);
+      } else {
+        const o = c.el, oldT = o.text, s = ta.selectionStart, e = ta.selectionEnd;
+        ta.setRangeText(t, s, e, 'end');
+        o.runs = adjustRuns(o.runs, oldT, ta.value); adjustPars(o, oldT, ta.value); o.text = ta.value;
+        stripRunsRange(o, s, s + t.length); sanitizeGen(o);
+        renderAll(); placeEd(); try { ta.setSelectionRange(s + t.length, s + t.length); } catch (_) {}
+      }
+    } catch (err) { console.error(err); return false; }
+    try { ta.focus({ preventScroll: true }); } catch (_) {}
+    try { mv.value = ta.value; } catch (_) {}
+    try { syncFmt(); } catch (_) {}
+    try { saveState(); } catch (_) {}
+    try { updateKb(); } catch (_) {}
+    if (big) { const w = (t.trim().match(/\S+/g) || []).length; showToast(w.toLocaleString('es') + ' palabras pegadas', 'success'); }
     return true;
   };
   const fmtBar = mk('<div id="fmtBar"><button data-f="cut">Cortar</button><button data-f="copy">Copiar</button><button data-f="paste">Pegar</button><button data-f="bold"><b>N</b></button><button data-f="italic"><i>K</i></button><button data-f="underline"><u>S</u></button><select data-f="size" aria-label="Tamaño"></select><select data-f="font" aria-label="Tipo de letra"></select><input type="color" data-sxc="color" title="Color de texto"><input type="color" data-sxc="hl" title="Resaltado"><button type="button" data-sx="list:bullet">•</button><button type="button" data-sx="list:number">1.</button><button type="button" data-sx="alcycle">Alin.</button><button type="button" data-sx="pop:bul">Viñeta ▾</button><button type="button" data-sx="pop:par">Párrafo ▾</button></div>');
@@ -7432,7 +7650,7 @@ ctx.restore();
   fmtBar.addEventListener('click', async (e) => {
     const b = e.target.closest('button[data-f]'); if (!b || !edTA) return; const k = b.dataset.f, ta = edTA;
     if (k === 'copy' || k === 'cut') { const s = ta.value.slice(ta.selectionStart, ta.selectionEnd); if (!s) return; if (window.miniClipSet) window.miniClipSet(s); try { await navigator.clipboard.writeText(s); if (k === 'cut') document.execCommand('insertText', false, ''); } catch (_) { document.execCommand(k); } }
-    else if (k === 'paste') { let t = ''; try { t = await navigator.clipboard.readText(); } catch (_) {} if (!t) t = window.miniClipMem ? window.miniClipMem() : ''; if (t) { kbRefocus(); if (!window.miniPasteStyled(t)) document.execCommand('insertText', false, t); } }
+    else if (k === 'paste') { const t = window.miniReadClip ? await window.miniReadClip() : ''; if (t) { kbRefocus(); if (!window.miniPasteStyled(t)) document.execCommand('insertText', false, t); } }
     else { const c = edCtx(); if (c) applyFmt({ [k]: !fmtVal(c, k) }); }
     kbRefocus();
   });
@@ -7492,14 +7710,22 @@ ctx.restore();
     while (d.pids.length > k) { const pg = docPage(d.pids.pop()); if (!pg) continue; pg.els = pg.els.filter(e => !e.flow); thumbCache.delete(pg.id); if (!pg.els.length && state.pages.length > 1) state.pages.splice(state.pages.indexOf(pg), 1); }
     if (state.currentPageIndex >= state.pages.length) state.currentPageIndex = state.pages.length - 1;
   }
-  function docRelocate(ta, caret) {
+  function docRelocate(ta, caret, caretEnd) {
     const d = state.doc; let j = d.recs.findIndex(q => caret <= q.e); if (j < 0) j = d.recs.length - 1;
     const q = d.recs[j], pg2 = docPage(q.pid), el2 = pg2.els.find(e => e.flow), loc = Math.max(0, Math.min(q.e - q.s, caret - q.s));
     state.currentPageIndex = state.pages.indexOf(pg2); editingTextId = el2.id; selectedIds = new Set([el2.id]);
-    if (ta.value !== el2.text) ta.value = el2.text; ta.setSelectionRange(loc, loc);
+    if (ta._g) { if (ta.value !== d.text) ta.value = d.text; try { ta.setSelectionRange(Math.min(caret, ta.value.length), Math.min(caretEnd === undefined ? caret : caretEnd, ta.value.length)); } catch (_) {} }
+    else { if (ta.value !== el2.text) ta.value = el2.text; ta.setSelectionRange(loc, loc); }
     renderAll(); placeEd();
   }
   function docInput(ta, el) {
+    if (ta._g && state.doc) {
+      const d = state.doc, oldT = d.text, nt = ta.value, caret = ta.selectionStart; let p = 0; const m = Math.min(oldT.length, nt.length);
+      while (p < m && oldT.charCodeAt(p) === nt.charCodeAt(p)) p++;
+      d.text = nt; d.runs = adjustRuns(d.runs, oldT, nt); adjustPars(d, oldT, nt);
+      let k = d.recs.findIndex(q => p <= q.e); if (k < 0) k = d.recs.length - 1;
+      reflowDoc(Math.max(0, k - 1)); docRelocate(ta, caret); return;
+    }
     const d = state.doc, pg = state.pages.find(p => p.els.includes(el)), k = d.pids.indexOf(pg.id), r = d.recs[k]; if (!r) return;
     const caret = r.s + ta.selectionStart, oldT = d.text; d.text = d.text.slice(0, r.s) + ta.value + d.text.slice(r.e); d.runs = adjustRuns(d.runs, oldT, d.text); adjustPars(d, oldT, d.text);
     reflowDoc(Math.max(0, k - 1)); docRelocate(ta, caret);
@@ -7510,9 +7736,8 @@ ctx.restore();
     const el = pg.els.find(e => e.flow); if (el) startInlineEdit(el.id, false); saveState();
   }
   async function docPaste() {
-    let t = ''; try { t = await navigator.clipboard.readText(); } catch (e) {}
-    if (!t) t = window.miniClipMem ? window.miniClipMem() : ''; if (!t) return;
-    t = t.replace(/\r\n?/g, '\n');
+    let t = window.miniReadClip ? await window.miniReadClip() : ''; if (!t) return;
+    t = window.miniCleanText ? window.miniCleanText(t) : t.replace(/\r\n?/g, '\n');
     const sel1 = selectedIds && selectedIds.size === 1 ? findEl([...selectedIds][0]) : null;
     if (sel1 && sel1.type === 'text' && !sel1.flow && typeof sel1.text === 'string') {
       sel1.text += (sel1.text && !sel1.text.endsWith('\n') ? '\n' : '') + t;
@@ -7528,7 +7753,8 @@ ctx.restore();
     const E = docEff(currentPage()), bg = currentPage().bg;
     let sc = null; try { sc = edTA ? edCtx() : null; } catch (_) {}
     const cv = (k) => sc ? sxCharVal(sc, k) : E.tx[k], pv2 = (k) => sc ? sxParVal(sc, k) : E.tx[k];
-    dm.querySelectorAll('[data-dt]').forEach(c => { if (document.activeElement !== c) { let v = (PARK.includes(c.dataset.dt) ? pv2 : cv)(c.dataset.dt); if (c.dataset.dt === 'hl') v = v || '#ffff00'; else if (v == null) v = 0; if (c.type === 'color' && !/^#[0-9a-f]{6}$/i.test(v)) v = '#000000'; if (c.tagName === 'SELECT' && ![...c.options].some(o => o.value === String(v))) c.add(new Option(v, v)); c.value = c.dataset.k ? +(v / c.dataset.k).toFixed(2) : v; } });
+    dm.querySelectorAll('[data-dt]').forEach(c => { if (document.activeElement !== c) { let v = (PARK.includes(c.dataset.dt) ? pv2 : cv)(c.dataset.dt); if (c.dataset.dt === 'hl') v = v || '#ffff00'; else if (v == null) v = 0; if (c.type === 'color' && !/^#[0-9a-f]{6}$/i.test(v)) v = '#000000'; if (c.tagName === 'SELECT' && ![...c.options].some(o => o.value === String(v))) c.add(new Option(v, v)); c.value = c.dataset.k ? +(v / c.dataset.k).toFixed(2) : (c.dataset.dt === 'lh' ? +(+v).toFixed(2) : v); } });
+    dm.querySelectorAll('[data-lhp]').forEach(b => b.classList.toggle('active', Math.abs(+pv2('lh') - +b.dataset.lhp) < 0.005));
     dm.querySelectorAll('[data-dl]').forEach(b => b.classList.toggle('active', (pv2('list') || 'none') === b.dataset.dl));
     dm.querySelectorAll('[data-dor]').forEach(b => b.classList.toggle('active', state.orientation === b.dataset.dor));
     const pp = dm.querySelector('[data-dpp]'); if (pp) pp.value = state.paperType;
@@ -7560,13 +7786,18 @@ ctx.restore();
   }
   dm.addEventListener('input', (e) => {
     const c = e.target, q = c.dataset;
-    if (q.dt) { let v = c.type === 'number' ? parseFloat(c.value) : c.value; if (c.type === 'number' && (isNaN(v) || (!q.z && !(v > 0)) || v < 0)) return; if (q.k) v *= +q.k; setDoc('tx', q.dt, v); }
+    if (q.dt) { let v = c.type === 'number' ? parseFloat(c.value) : c.value; if (c.type === 'number' && (isNaN(v) || (!q.z && !(v > 0)) || v < 0)) return; if (q.dt === 'lh' && !(v >= 0.8 && v <= 4)) return; if (q.k) v *= +q.k; setDoc('tx', q.dt, v); }
     else if (q.dm) { const v = parseFloat(c.value); if (v >= 0) setDoc('m', q.dm, v); }
     else if (q.dg === 'bgon') setBg(!c.checked);
     else if (q.dg) { const sw = dm.querySelector('[data-dg=bgon]'); if (sw && sw.checked) setBg(false); }
   });
+  dm.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('[data-lhp]'); if (!b) return;
+    setDoc('tx', 'lh', parseFloat(b.dataset.lhp)); saveState(); syncDoc();
+  });
   dm.addEventListener('change', (e) => {
     const c = e.target;
+    if (c.dataset && c.dataset.dt === 'lh') { let v = parseFloat(c.value); if (!(v > 0)) v = 1.15; v = Math.max(0.8, Math.min(4, Math.round(v * 100) / 100)); c.value = v; setDoc('tx', 'lh', v); }
     if (c.dataset.mp !== undefined && c.value) { const [t, b, l, r] = c.value.split(',').map(Number); setDoc('m', 't', t); setDoc('m', 'b', b); setDoc('m', 'l', l); setDoc('m', 'r', r); }
     else if (c.dataset.dpp !== undefined) { $('paperType').value = c.value; $('paperType').dispatchEvent(new Event('change')); if (state.doc) { reflowDoc(0); renderAll(); } }
     else if (c.dataset.cw !== undefined || c.dataset.ch !== undefined) {
@@ -7860,9 +8091,11 @@ ctx.restore();
   function hfBox(sec) {
     const P = getPaperCm(), b = state.hf[sec];
     const ml = hfClampN(+b.ml || 0, 0, P.w * 0.45), mr = hfClampN(+b.mr || 0, 0, P.w * 0.45), len = hfClampN(+b.len || 2, 0.5, P.h * 0.5);
+    if (sec === 'center') { const H = state.hf.header, F = state.hf.footer, top0 = hfClampN(+H.mt || 0, 0, P.h * 0.4) + hfClampN(+H.len || 2, 0.5, P.h * 0.5), bot0 = hfClampN(+F.mb || 0, 0, P.h * 0.4) + hfClampN(+F.len || 2, 0.5, P.h * 0.5), t = top0 + hfClampN(+b.mt || 0, 0, P.h * 0.4), bt = bot0 + hfClampN(+b.mb || 0, 0, P.h * 0.4), hh = Math.max(0.5, P.h - t - bt); return { x0: ml, x1: P.w - mr, y0: t, y1: t + hh, W: P.w - mr - ml, H: hh }; }
     const y0 = sec === 'header' ? hfClampN(+b.mt || 0, 0, P.h * 0.4) : P.h - hfClampN(+b.mb || 0, 0, P.h * 0.4) - len;
     return { x0: ml, x1: P.w - mr, y0, y1: y0 + len, W: P.w - mr - ml, H: len };
   }
+  function hfName(sec) { return sec === 'header' ? 'Encabezado' : sec === 'center' ? 'Centro de página' : 'Pie de página'; }
   function hfBand() { return hfBox(hfEd.sec); }
   function hfNumText(nv, sec) { const N = state.hf[sec].num; return String(N.fmt || '{n}').replace(/\{n\}/g, hfFmtNum(nv, N.style)).replace(/\{total\}/g, hfFmtNum(hfTotalNumber(sec), N.style)); }
   function hfHasNum() { const h = state.hf; return !!h && ['header', 'footer'].some(k => h[k] && (h[k].num.on || (h[k].on && (h[k].items || []).some(it => it.type === 'text' && /\{n\}/.test(it.text || ''))))); }
@@ -7870,7 +8103,7 @@ ctx.restore();
   // Elementos de cada franja para una hoja (con {n} / {total} ya sustituidos y la opacidad total aplicada).
   function hfLayerEls(pi) {
     const h = state.hf, out = []; if (!h) return out;
-    ['header', 'footer'].forEach(k => {
+    ['center', 'header', 'footer'].forEach(k => {
       const b = h[k]; if (!b) return;
       const N = b.num, nv = hfNumberFor(pi, k);
       const inRange = !(pi + 1 < Math.max(1, Math.round(+b.from) || 1) || (+b.to > 0 && pi + 1 > Math.round(+b.to))); // rango de texto/formas/imágenes
@@ -8033,6 +8266,7 @@ ctx.restore();
     const sec = hfEd.sec, b = state.hf[sec], P = getPaperCm(), k = c.dataset.sp; let v;
     if (c.type === 'checkbox') v = c.checked; else { v = parseFloat(c.value); if (!Number.isFinite(v)) return; }
     if (k === 'edge') b[sec === 'header' ? 'mt' : 'mb'] = hfClampN(v, 0, P.h * 0.4);
+    else if (k === 'mt' || k === 'mb') b[k] = hfClampN(v, 0, P.h * 0.4);
     else if (k === 'ml' || k === 'mr') b[k] = hfClampN(v, 0, P.w * 0.45);
     else if (k === 'len') b[k] = hfClampN(v, 0.5, P.h * 0.5);
     else if (k === 'from') b[k] = Math.max(1, Math.round(v));
@@ -8169,10 +8403,11 @@ ctx.restore();
   }
   function hfEdSync() {
     if (!hfEdBar || !hfEd.on) return;
-    const sec = hfEd.sec, b = state.hf[sec], nm = sec === 'header' ? 'Encabezado' : 'Pie de página', P = getPaperCm();
+    const sec = hfEd.sec, b = state.hf[sec], nm = hfName(sec), P = getPaperCm();
     $('hfEdTitle').textContent = nm; { const tb = $('hfTabBtn'); if (tb) tb.textContent = nm; }
     $('hfEdgeLbl').textContent = sec === 'header' ? 'Sup.' : 'Inf.';
-    $('hfPosLbl').textContent = 'Posición en el ' + (sec === 'header' ? 'encabezado' : 'pie');
+    $('hfPosLbl').textContent = 'Posición en el ' + (sec === 'header' ? 'encabezado' : sec === 'center' ? 'centro' : 'pie');
+    hfEdBar.querySelectorAll('[data-hfs]').forEach(n => { n.style.display = (n.dataset.hfs === 'cen') === (sec === 'center') ? '' : 'none'; });
     const setv = (c, v) => { if (document.activeElement !== c && v !== undefined && v !== null) c.value = v; };
     hfEdBar.querySelectorAll('[data-sp]').forEach(c => {
       const k = c.dataset.sp, v = k === 'edge' ? (sec === 'header' ? b.mt : b.mb) : b[k];
@@ -8188,7 +8423,7 @@ ctx.restore();
       [['nb', 'bold'], ['ni', 'italic']].forEach(([a, kk]) => { const bt = hfEdBar.querySelector(`[data-hfa="${a}"]`); if (bt) bt.classList.toggle('active', !!N[kk]); }); }
     const sel = getSelectedEls().filter(hfInSession), f = sel[0];
     const ft = sel.find(x => x.type === 'text'), fs = sel.find(x => x.type === 'shape'), fi = sel.find(x => !x.type);
-    const g = { sel: sel.length > 0, one: sel.length === 1, text: !!ft, shape: !!fs, img: !!fi, numon: !!state.hf[sec].num.on };
+    const g = { sel: sel.length > 0, one: sel.length === 1, text: !!ft, shape: !!fs, img: !!fi, numon: !!state.hf[sec].num.on && sec !== 'center', num: sec !== 'center' };
     hfEdBar.querySelectorAll('[data-hfg]').forEach(n => { n.style.display = g[n.dataset.hfg] ? '' : 'none'; });
     if (!f) return;
     hfEdBar.querySelectorAll('[data-ep]').forEach(c => {
@@ -8249,7 +8484,7 @@ ctx.restore();
     if (hfEdShapes) hfEdShapes.classList.remove('show');
     selectedIds = new Set(); thumbCache.clear(); lastThumbsSignature = '';
     saveState(); renderAll();
-    if (!silent) showToast(items.length ? `${sec === 'header' ? 'Encabezado' : 'Pie de página'} guardado (${items.length} elemento${items.length === 1 ? '' : 's'})` : `${sec === 'header' ? 'Encabezado' : 'Pie de página'} vacío`, 'success');
+    if (!silent) showToast(items.length ? `${hfName(sec)} guardado (${items.length} elemento${items.length === 1 ? '' : 's'})` : `${hfName(sec)} vacío`, 'success');
   }
   let hfTimer = null;
   function hfChanged() {
@@ -8265,6 +8500,7 @@ ctx.restore();
   $('openHFFootBtn').addEventListener('click', () => { sfx.click(); hfOpen('footer'); });
   $('hfRibbonBtn').addEventListener('click', () => hfOpen('header'));
   $('hfRibbonFtBtn').addEventListener('click', () => hfOpen('footer'));
+  $('hfRibbonCtBtn').addEventListener('click', () => hfOpen('center'));
 
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -8319,23 +8555,8 @@ ctx.restore();
       if (header) header.addEventListener('click', () => { sfx.tap(); sg.classList.toggle('collapsed'); });
     });
 
-    $('moreMenuBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  sfx.click();
-  const menu = $('moreMenu');
-  const willOpen = !menu.classList.contains('show');
-  document.querySelectorAll('.dropdown-menu.show').forEach(m => { if (m !== menu) m.classList.remove('show'); });
-  if (willOpen) {
-    const btnRect = e.currentTarget.getBoundingClientRect();
-    menu.style.top = (btnRect.bottom + 6) + 'px';
-    menu.style.right = Math.max(8, window.innerWidth - btnRect.right) + 'px';
-    menu.classList.add('show');
-  } else {
-    menu.classList.remove('show');
-  }
-});
 document.addEventListener('pointerdown', (e) => {
-  if (!e.target.closest('#moreMenu') && !e.target.closest('#moreMenuBtn')) {
+  if (!e.target.closest('#moreMenu')) {
     $('moreMenu').classList.remove('show');
   }
 }, true);
@@ -9265,9 +9486,10 @@ document.addEventListener('pointerdown', (e) => {
   })();
 
   /* ====== EDITOR DE PÓSTER (VARIAS HOJAS) ====== */
-  const PS = { img: null, name: '', mode: 'size', cols: 2, rows: 2, pw: 60, ph: 90, lock: true, fit: 'fill', zoom: 100, scaleX: 100, scaleY: 100, scaleLink: false, offX: 0, offY: 0, rot: 0, flipH: false, flipV: false,
-    bg: '#ffffff', overlap: 0, mL: 0.5, mR: 0.5, mT: 0.5, mB: 0.5, mLink: true, snapEdges: true, vz: 1, vx: 0, vy: 0, tool: 'img', pOpen: false, snapMove: true, detectLines: true, snapStep: 0.1, dpi: 300, fmt: 'png', bright: 100, contrast: 100, sat: 100, cropL: 0, cropR: 0, cropT: 0, cropB: 0, gray: false, maxSheets: 9, exactSheets: 6, paperPreset: 'carta',
+  const PS = { img: null, name: '', mode: 'size', cols: 2, rows: 2, pw: 60, ph: 90, lock: true, fit: 'fill', zoom: 100, scaleX: 100, scaleY: 100, scaleLink: false, keepMargin: false, respFit: false, rulers: true, dims: true, offX: 0, offY: 0, rot: 0, flipH: false, flipV: false,
+    bg: '#ffffff', overlap: 0, mL: 0.5, mR: 0.5, mT: 0.5, mB: 0.5, mLink: true, snapEdges: true, vz: 1, vx: 0, vy: 0, tool: 'img', pOpen: false, snapMove: true, detectLines: true, snapStep: 0.1, dpi: 300, fmt: 'png', bright: 100, contrast: 100, sat: 100, cropL: 0, cropR: 0, cropT: 0, cropB: 0, gray: false, exactSheets: 6, paperPreset: 'carta',
     skip: new Set(), sel: null, tab: 0, preset: '' };
+  const PS_MAXN = 20; /* máx. hojas por eje */
   const PS_FILTER = (() => { try { return 'filter' in document.createElement('canvas').getContext('2d'); } catch (e) { return false; } })();
   try { PS.stageBg = localStorage.getItem('ps-stage-bg') || null; } catch (_) { PS.stageBg = null; }
   try { PS.tFold = localStorage.getItem('ps-tfold') === '1'; } catch (_) { PS.tFold = false; }
@@ -9280,31 +9502,52 @@ document.addEventListener('pointerdown', (e) => {
   function psGeom() {
     const p = getPaperCm(), lim = Math.max(0, (Math.min(p.w, p.h) - 1) / 2), cl = v => Math.max(0, Math.min(lim, Number(v) || 0));
     const ml = cl(PS.mL), mr = cl(PS.mR), mt = cl(PS.mT), mb = cl(PS.mB), m = ml, uw = p.w - ml - mr, uh = p.h - mt - mb;
-    const ov = 0, sx = uw, sy = uh;
+    const ov = 0, sx = uw, sy = uh, N = PS_MAXN;
     let cols = 1, rows = 1;
-    const targetRatio = Math.max(.05, (PS.pw || 60) / Math.max(1, PS.ph || 90));
-    if (PS.mode === 'grid') { cols = Math.max(1, Math.min(12, Math.round(PS.cols))); rows = Math.max(1, Math.min(12, Math.round(PS.rows))); }
-    else if (PS.mode === 'exact' || PS.mode === 'optimal') {
-      const cap = PS.mode === 'exact' ? Math.max(1, Math.min(144, Math.round(PS.exactSheets) || 1)) : Math.max(1, Math.min(144, Math.round(PS.maxSheets) || 9));
+    if (PS.mode === 'grid') { cols = Math.max(1, Math.min(N, Math.round(PS.cols) || 1)); rows = Math.max(1, Math.min(N, Math.round(PS.rows) || 1)); }
+    else if (PS.mode === 'exact') {
+      const cap = Math.max(1, Math.min(144, Math.round(PS.exactSheets) || 1));
+      const targetRatio = Math.max(.05, PS.img ? psRatio() : (PS.pw || 60) / Math.max(1, PS.ph || 90));
       let best = null;
-      for (let c = 1; c <= Math.min(12, cap); c++) for (let r = 1; r <= Math.min(12, cap); r++) {
-        const n = c * r; if (PS.mode === 'exact' ? n !== cap : n > cap) continue;
-        const ratio = (c * sx + ov) / (r * sy + ov);
-        const score = Math.abs(Math.log(Math.max(.001, ratio / targetRatio))) + (PS.mode === 'optimal' ? n * .0005 : 0);
+      for (let c = 1; c <= Math.min(N, cap); c++) for (let r = 1; r <= Math.min(N, cap); r++) {
+        const n = c * r; if (n > cap) continue;
+        const ratio = (c * sx) / (r * sy);
+        const score = Math.abs(Math.log(Math.max(.001, ratio / targetRatio))) + (cap - n) * 10;
         if (!best || score < best.score) best = { c, r, score };
       }
-      if (best) { cols = best.c; rows = best.r; } else { cols = 1; rows = cap; }
-    } else { cols = Math.max(1, Math.min(12, Math.ceil((PS.pw - ov) / sx - 1e-6))); rows = Math.max(1, Math.min(12, Math.ceil((PS.ph - ov) / sy - 1e-6))); }
+      if (best) { cols = best.c; rows = best.r; }
+    } else { cols = Math.max(1, Math.min(N, Math.ceil((PS.pw - ov) / sx - 1e-6))); rows = Math.max(1, Math.min(N, Math.ceil((PS.ph - ov) / sy - 1e-6))); }
     const UW = cols * uw - (cols - 1) * ov, UH = rows * uh - (rows - 1) * ov;
     let PW = UW, PH = UH; if (PS.mode === 'size') { PW = Math.min(PS.pw, UW); PH = Math.min(PS.ph, UH); }
     return { s: { w: p.w, h: p.h, uw, uh }, m, ml, mr, mt, mb, ov, stepX: sx, stepY: sy, cols, rows, UW, UH, PW, PH, px: (UW - PW) / 2, py: (UH - PH) / 2, VW: cols * p.w, VH: rows * p.h };
   }
   function psLayout() {
     const G = psGeom(), im = psCropRect(), q = psQuarter(), bw = q ? im.sh : im.sw, bh = q ? im.sw : im.sh;
+    const kx = Math.max(.1, (Number(PS.scaleX) || 100) / 100), ky = Math.max(.1, (Number(PS.scaleY) || 100) / 100);
+    /* "Respetar ajuste": la escala cambia el MARCO y la imagen se adapta a él según Rellenar / Ajustar / Estirar */
+    const FW = PS.respFit ? G.PW * kx : G.PW, FH = PS.respFit ? G.PH * ky : G.PH;
     let sx, sy;
-    if (PS.fit === 'stretch') { sx = G.PW / bw; sy = G.PH / bh; }
-    else { const s = PS.fit === 'fit' ? Math.min(G.PW / bw, G.PH / bh) : Math.max(G.PW / bw, G.PH / bh); sx = sy = s; }
-    return { G, sx, sy, q };
+    if (PS.fit === 'stretch') { sx = FW / bw; sy = FH / bh; }
+    else { const s = PS.fit === 'fit' ? Math.min(FW / bw, FH / bh) : Math.max(FW / bw, FH / bh); sx = sy = s; }
+    return { G, sx, sy, q, FW, FH };
+  }
+  /* tamaño (cm) que ocupa el objeto escalado: el marco (respetar ajuste) o la caja de la imagen transformada */
+  function psExtent(kx, ky, z) {
+    const G = psGeom(); if (PS.respFit) return { w: G.PW * kx, h: G.PH * ky };
+    const { sx, sy, q } = psLayout(), sc = psCropRect(), ax = q ? sy : sx, ay = q ? sx : sy, t = PS.rot * Math.PI / 180, c = Math.abs(Math.cos(t)), sn = Math.abs(Math.sin(t));
+    const a = sc.sw * ax * z / 2, b = sc.sh * ay * z / 2;
+    return { w: 2 * kx * (c * a + sn * b), h: 2 * ky * (sn * a + c * b) };
+  }
+  /* parte de la imagen que realmente se imprime (cm, coordenadas del póster; sin márgenes de impresora) */
+  function psVisRect() {
+    if (!PS.img) return null; const G = psGeom(), { sx, sy, q, FW, FH } = psLayout(), sc = psCropRect(), z = PS.zoom / 100, ax = q ? sy : sx, ay = q ? sx : sy;
+    const kx = PS.respFit ? 1 : (Number(PS.scaleX) || 100) / 100, ky = PS.respFit ? 1 : (Number(PS.scaleY) || 100) / 100;
+    const t = PS.rot * Math.PI / 180, c = Math.abs(Math.cos(t)), sn = Math.abs(Math.sin(t)), a = sc.sw * ax * z / 2, b = sc.sh * ay * z / 2;
+    const cx = G.px + G.PW / 2 + PS.offX, cy = G.py + G.PH / 2 + PS.offY, hw = kx * (c * a + sn * b), hh = ky * (sn * a + c * b);
+    let x0 = cx - hw, x1 = cx + hw, y0 = cy - hh, y1 = cy + hh;
+    if (PS.respFit) { x0 = Math.max(x0, cx - FW / 2); x1 = Math.min(x1, cx + FW / 2); y0 = Math.max(y0, cy - FH / 2); y1 = Math.min(y1, cy + FH / 2); }
+    x0 = Math.max(x0, G.px); x1 = Math.min(x1, G.px + G.PW); y0 = Math.max(y0, G.py); y1 = Math.min(y1, G.py + G.PH);
+    return (x1 - x0 > 1e-6 && y1 - y0 > 1e-6) ? { x0, y0, x1, y1 } : null;
   }
   function psSnapAxis(axis, value) {
     value = Number(value) || 0;
@@ -9315,8 +9558,7 @@ document.addEventListener('pointerdown', (e) => {
     for (let i = 1; i < count; i++) lines.push(i * span);
     lines.forEach(l => cands.push({ v: l - base, g: l }));
     if (PS.snapEdges && PS.img && PS.rot % 90 === 0) {
-      const { sx, sy, q } = psLayout(), sc = psCropRect(), z = PS.zoom / 100, ax = q ? sy : sx, ay = q ? sx : sy;
-      const half = (isX ? (q ? sc.sh * ay : sc.sw * ax) : (q ? sc.sw * ax : sc.sh * ay)) * z * (isX ? (Number(PS.scaleX) || 100) : (Number(PS.scaleY) || 100)) / 200;
+      const E = psExtent((Number(PS.scaleX) || 100) / 100, (Number(PS.scaleY) || 100) / 100, PS.zoom / 100), half = (isX ? E.w : E.h) / 2;
       lines.forEach(l => { cands.push({ v: l + half - base, g: l }); cands.push({ v: l - half - base, g: l }); });
     }
     const thr = 8 / Math.max(0.05, Number(PS._k) || 0.5); let best = null, d = thr + 1;
@@ -9329,8 +9571,9 @@ document.addEventListener('pointerdown', (e) => {
   function psDrawContent(ctx, G) {
     ctx.fillStyle = PS.bg; ctx.fillRect(0, 0, G.UW, G.UH);
     if (!PS.img) return;
-    const { sx, sy, q } = psLayout(), im = PS.img, s = psCropRect(), z = PS.zoom / 100, ax = q ? sy : sx, ay = q ? sx : sy, kx = (Number(PS.scaleX) || 100) / 100, ky = (Number(PS.scaleY) || 100) / 100;
+    const { sx, sy, q, FW, FH } = psLayout(), im = PS.img, s = psCropRect(), z = PS.zoom / 100, ax = q ? sy : sx, ay = q ? sx : sy, kx = PS.respFit ? 1 : (Number(PS.scaleX) || 100) / 100, ky = PS.respFit ? 1 : (Number(PS.scaleY) || 100) / 100;
     ctx.save(); ctx.beginPath(); ctx.rect(G.px, G.py, G.PW, G.PH); ctx.clip();
+    if (PS.respFit) { ctx.beginPath(); ctx.rect(G.px + G.PW / 2 + PS.offX - FW / 2, G.py + G.PH / 2 + PS.offY - FH / 2, FW, FH); ctx.clip(); }
     ctx.translate(G.px + G.PW / 2 + PS.offX, G.py + G.PH / 2 + PS.offY); ctx.scale(kx, ky);
     ctx.scale(PS.flipH ? -1 : 1, PS.flipV ? -1 : 1); ctx.rotate(PS.rot * Math.PI / 180); ctx.scale(z * ax, z * ay);
     if (PS_FILTER && (PS.bright !== 100 || PS.contrast !== 100 || PS.sat !== 100 || PS.gray)) ctx.filter = `brightness(${PS.bright}%) contrast(${PS.contrast}%) saturate(${PS.sat}%)${PS.gray ? ' grayscale(1)' : ''}`;
@@ -9338,7 +9581,7 @@ document.addEventListener('pointerdown', (e) => {
   }
   function psDpi() {
     if (!PS.img) return 0; const { sx, sy } = psLayout(); const z = PS.zoom / 100;
-    return Math.round(2.54 / (Math.max(sx * (Number(PS.scaleX) || 100) / 100, sy * (Number(PS.scaleY) || 100) / 100) * z));
+    return Math.round(2.54 / (Math.max(sx * (PS.respFit ? 1 : (Number(PS.scaleX) || 100) / 100), sy * (PS.respFit ? 1 : (Number(PS.scaleY) || 100) / 100)) * z));
   }
   function psTiles(G) { const L = []; for (let r = 0; r < G.rows; r++) for (let c = 0; c < G.cols; c++) L.push({ r, c, code: `hoja_${r + 1}_${c + 1}` }); return L; }
   function psRenderTile(r, c, dpi, n, total) {
@@ -9507,19 +9750,19 @@ document.addEventListener('pointerdown', (e) => {
           <input type="file" id="psFile" accept="image/*" style="display:none"><input type="file" id="psCamera" accept="image/*" capture="environment" style="display:none">
           </div></details><details class="pe-d"><summary>Ajuste</summary><div class="pe-fb">${psTg('fit', [['fill', 'Rellenar'], ['fit', 'Ajustar'], ['stretch', 'Estirar']])}
           <button type="button" class="btn full" data-pa="center">${PSI.rotL}<span>Centrar y restablecer</span></button>
-          </div></details><details class="pe-d"><summary>Escala X / Y</summary><div class="pe-fb">${psRg('scaleX', 'Escala X %', 10, 400, 1)}${psRg('scaleY', 'Escala Y %', 10, 400, 1)}${psSw('scaleLink', 'Vincular X e Y')}<button type="button" class="btn full" data-pa="scaleReset">${PSI.rotL}<span>Restablecer escala</span></button></div></details><details class="pe-d"><summary>Colores</summary><div class="pe-fb"><label>Color de fondo de la imagen</label><input type="color" data-ps="bg">
+          </div></details><details class="pe-d"><summary>Escala X / Y</summary><div class="pe-fb">${psRg('scaleX', 'Escala X %', 10, 400, 1)}${psRg('scaleY', 'Escala Y %', 10, 400, 1)}${psSw('scaleLink', 'Vincular X e Y')}${psSw('keepMargin', 'Respetar margen al escalar')}${psSw('respFit', 'Respetar ajuste de imagen')}<p class="ps-hint">Margen: los cantos no pasan del borde del póster. Ajuste: la escala cambia el marco y la imagen se adapta según Rellenar / Ajustar / Estirar.</p><button type="button" class="btn full" data-pa="scaleReset">${PSI.rotL}<span>Restablecer escala</span></button></div></details><details class="pe-d"><summary>Colores</summary><div class="pe-fb"><label>Color de fondo de la imagen</label><input type="color" data-ps="bg">
           <label>Fondo del área de trabajo</label><input type="color" data-ps="stageBg"><button type="button" class="btn full" data-pa="stageReset">${PSI.rotL}<span>Usar color del tema</span></button></div></details>
         </div>
         <div class="ps-tab" data-tab="1">
           <details class="pe-d" open><summary>Hoja de impresión</summary><div class="pe-fb">
           <select id="psPaper" hidden><option value="carta">Carta (21.2 × 27.6)</option><option value="oficio">Oficio (21.2 × 32.5)</option><option value="legal">Legal (21.6 × 35.6)</option><option value="a4">A4 (21 × 29.7)</option><option value="a3">A3 (29.7 × 42)</option><option value="a2">A2 (42 × 59.4)</option><option value="tabloide">Tabloide (27.9 × 43.2)</option><option value="10x15">10 × 15</option><option value="custom">Personalizado</option></select><details class="pe-pick"><summary class="pe-sum"><span data-cur="#psPaper"></span></summary><div class="pe-opts" data-for="#psPaper"></div></details><div class="row" id="psCustomPaper" style="display:none"><div><label>Ancho hoja (cm)</label><input type="number" id="psPaperW" min="5" max="100" step="0.1" value="21.2"></div><div><label>Alto hoja (cm)</label><input type="number" id="psPaperH" min="5" max="150" step="0.1" value="27.6"></div></div>
           <div class="toggle"><button type="button" id="psOV">Vertical</button><button type="button" id="psOH">Horizontal</button></div>
-          </div></details><details class="pe-d" open><summary>Tamaño del póster</summary><div class="pe-fb">${psTg('mode', [['size', 'Por tamaño'], ['grid', 'Por hojas'], ['optimal', 'Optimizar hojas'], ['exact', 'Hojas exactas']])}
+          </div></details><details class="pe-d" open><summary>Tamaño del póster</summary><div class="pe-fb">${psTg('mode', [['size', 'Por tamaño'], ['grid', 'Por hojas'], ['exact', 'Hojas exactas']])}
           <div id="psSizeBox"><label>Medidas predefinidas</label><select data-ps="preset" hidden>${PS_PRESETS.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select><details class="pe-pick"><summary class="pe-sum"><span data-cur="[data-ps=preset]"></span></summary><div class="pe-opts" data-for="[data-ps=preset]"></div></details>
         <div class="row"><div><label>Ancho total (cm)</label><input type="number" data-ps="pw" min="5" max="1000" step="0.1" inputmode="decimal"></div><div><label>Alto total (cm)</label><input type="number" data-ps="ph" min="5" max="1000" step="0.1" inputmode="decimal"></div></div>
         ${psSw('lock', 'Mantener proporción de la imagen')}<button type="button" class="btn full" data-pa="swap">${PSI.swap}Intercambiar ancho y alto</button>
       </div>
-      <div id="psGridBox" class="row"><div><label>Columnas</label><input type="number" data-ps="cols" min="1" max="12" step="1" inputmode="numeric"></div><div><label>Filas</label><input type="number" data-ps="rows" min="1" max="12" step="1" inputmode="numeric"></div></div><div id="psOptimalBox" class="row" style="display:none"><div><label>Máximo de hojas</label><input type="number" data-ps="maxSheets" min="1" max="144" step="1"></div></div><div id="psExactBox" class="row" style="display:none"><div><label>Número exacto de hojas</label><input type="number" data-ps="exactSheets" min="1" max="144" step="1"></div></div>
+      <div id="psGridBox" class="row"><div><label>Columnas</label><input type="number" data-ps="cols" min="1" max="20" step="1" inputmode="numeric"></div><div><label>Filas</label><input type="number" data-ps="rows" min="1" max="20" step="1" inputmode="numeric"></div></div><div id="psExactBox" class="row" style="display:none"><div><label>Número exacto de hojas</label><input type="number" data-ps="exactSheets" min="1" max="144" step="1"></div></div>
 </div></details>
         </div>
         <div class="ps-tab" data-tab="2">
@@ -9534,7 +9777,7 @@ document.addEventListener('pointerdown', (e) => {
           <div id="psFilters"><details class="pe-d" open><summary>Recorte</summary><div class="pe-fb">${psRg('cropL', 'Recorte izquierda %', 0, 45, 1)}${psRg('cropR', 'Recorte derecha %', 0, 45, 1)}${psRg('cropT', 'Recorte superior %', 0, 45, 1)}${psRg('cropB', 'Recorte inferior %', 0, 45, 1)}</div></details><details class="pe-d"><summary>Color</summary><div class="pe-fb">${psRg('bright', 'Brillo %', 50, 150, 1)}${psRg('contrast', 'Contraste %', 50, 150, 1)}${psRg('sat', 'Saturación %', 0, 200, 1)}${psSw('gray', 'Escala de grises')}</div></details></div>
         </div>
         <div class="ps-tab" data-tab="4">
-          ${psSw('snapMove', 'Ajuste magnético (snap)')}${psSw('snapEdges', 'Alinear bordes de la imagen')}${psSw('detectLines', 'Mostrar divisiones entre hojas')}
+          ${psSw('rulers', 'Regla en cm (tipo plano)')}${psSw('dims', 'Medidas de cada lado')}<p class="ps-hint">Las medidas cuentan solo la imagen: los márgenes de impresora no se suman.</p>${psSw('snapMove', 'Ajuste magnético (snap)')}${psSw('snapEdges', 'Alinear bordes de la imagen')}${psSw('detectLines', 'Mostrar divisiones entre hojas')}
           <label>Precisión de la rejilla (cm)</label><input type="number" data-ps="snapStep" min="0.01" max="5" step="0.01" inputmode="decimal">
           <p class="ps-hint">Al mover la imagen se imanta al centro, a los bordes del póster y a las divisiones entre hojas; las guías magenta indican con qué se alinea.</p>
         </div>
@@ -9584,7 +9827,7 @@ document.addEventListener('pointerdown', (e) => {
     psBox.querySelectorAll('[data-psv]').forEach(b => { const [k, v] = b.dataset.psv.split(':'); b.classList.toggle('active', String(PS[k]) === v); });
     psBox.querySelectorAll('[data-pt]').forEach(b => b.classList.toggle('active', +b.dataset.pt === PS.tab));
     psBox.querySelectorAll('.ps-tab').forEach(t => t.classList.toggle('on', +t.dataset.tab === PS.tab));
-    $('psSizeBox').style.display = PS.mode === 'size' ? 'block' : 'none'; $('psGridBox').style.display = PS.mode === 'grid' ? 'flex' : 'none'; $('psOptimalBox').style.display = PS.mode === 'optimal' ? 'flex' : 'none'; $('psExactBox').style.display = PS.mode === 'exact' ? 'flex' : 'none';
+    $('psSizeBox').style.display = PS.mode === 'size' ? 'block' : 'none'; $('psGridBox').style.display = PS.mode === 'grid' ? 'flex' : 'none'; $('psExactBox').style.display = PS.mode === 'exact' ? 'flex' : 'none';
     $('psFilters').style.display = PS_FILTER ? 'block' : 'none';
     $('psPaper').value = state.paperType; $('psCustomPaper').style.display = state.paperType === 'custom' ? 'flex' : 'none'; $('psPaperW').value = state.customW; $('psPaperH').value = state.customH; $('psOV').classList.toggle('active', state.orientation === 'vertical'); $('psOH').classList.toggle('active', state.orientation === 'horizontal');
     posterModal.classList.toggle('pnl-open', !!PS.pOpen); posterModal.classList.toggle('l-hide', !!PS.lHide); posterModal.classList.toggle('t-fold', !!PS.tFold); $('peRT').textContent = PS_TABS[PS.tab] || '';
@@ -9592,15 +9835,15 @@ document.addEventListener('pointerdown', (e) => {
     { const q = (a) => psBox.querySelector('[data-pa="' + a + '"]');
       $('peVz').textContent = Math.round(PS.vz * 100) + '%'; $('peTool').innerHTML = PS.tool === 'view' ? PSI.hand : PSI.move; $('peTool').classList.toggle('active', PS.tool === 'view');
       const sn = q('snap'), ln = q('lines'); if (sn) sn.classList.toggle('active', !!PS.snapMove); if (ln) ln.classList.toggle('active', !!PS.detectLines); }
-    const tiles = psTiles(G), dpi = psDpi();
-    const info = `${G.cols * G.rows} hojas (${G.cols} × ${G.rows}) · póster ${gFmt(G.PW)} × ${gFmt(G.PH)} cm` + (PS.img ? ` · ${dpi} dpi efectivos` : '');
+    const tiles = psTiles(G), dpi = psDpi(), vr = PS.img ? psVisRect() : null, imgInfo = (vr && (Math.abs(vr.x1 - vr.x0 - G.PW) > .05 || Math.abs(vr.y1 - vr.y0 - G.PH) > .05)) ? ` · imagen ${gFmt(vr.x1 - vr.x0)} × ${gFmt(vr.y1 - vr.y0)} cm` : '';
+    const info = `${G.cols * G.rows} hojas (${G.cols} × ${G.rows}) · póster ${gFmt(G.PW)} × ${gFmt(G.PH)} cm` + imgInfo + (PS.img ? ` · ${dpi} dpi efectivos` : '');
     $('psInfo').textContent = info + (PS.img && dpi < 100 ? ' · ⚠ resolución baja' : ''); $('psInfo').classList.toggle('warn', !!(PS.img && dpi < 100));
     { const stg = $('psCanvas').parentElement; if (PS.stageBg) stg.style.setProperty('--stage-bg', PS.stageBg); else stg.style.removeProperty('--stage-bg');
       const si = psBox.querySelector('[data-ps="stageBg"]');
       if (si && si !== act) { let hex = PS.stageBg; if (!hex) { const m = (getComputedStyle(stg).backgroundColor || '').match(/\d+(\.\d+)?/g); hex = m ? '#' + m.slice(0, 3).map(n => Math.round(+n).toString(16).padStart(2, '0')).join('') : '#2a2d33'; } si.value = hex; } }
     psBox.querySelectorAll('.pe-opts').forEach(box => { const sel = psBox.querySelector(box.dataset.for); if (sel) box.querySelectorAll('.pe-opt').forEach(b => b.classList.toggle('active', b.dataset.v === sel.value)); });
     psBox.querySelectorAll('[data-cur]').forEach(sp => { const sel = psBox.querySelector(sp.dataset.cur); if (sel && sel.selectedIndex >= 0) sp.textContent = sel.options[sel.selectedIndex].textContent; });
-    psQSync(G); psFills();
+    psQSync(G); psFills(); PS._snap = { scaleX: PS.scaleX, scaleY: PS.scaleY, zoom: PS.zoom };
   }
   const psQDef = (k) => (k === 'zoom' || k === 'scaleX' || k === 'scaleY') ? 100 : 0;
   const PS_Q = { zoom: ['Zoom', 10, 400, 1], scaleX: ['Escala X', 10, 400, 1], scaleY: ['Escala Y', 10, 400, 1], rot: ['Giro', -180, 180, 1], offX: ['Mover X', 0, 0, 0.1], offY: ['Mover Y', 0, 0, 0.1] };
@@ -9619,24 +9862,52 @@ document.addEventListener('pointerdown', (e) => {
   }
   $('peQ').addEventListener('input', (e) => { const k = PS.qk || 'zoom'; PS[k] = parseFloat(e.target.value) || 0; if (k === 'rot') psAfterRot(); psChange(k); });
   $('peQ').addEventListener('change', () => { const k = PS.qk || 'zoom'; if (k !== 'offX' && k !== 'offY') return; PS[k] = psSnapOffset(k === 'offX' ? 'x' : 'y', Number(PS[k]) || 0); psSync(); psDraw(); });
-  function psChange(k) {
+  function psChange(k, raw) {
     if (k === 'scaleX' || k === 'scaleY' || k === 'scaleLink') { PS.scaleX = Math.max(10, Math.min(400, Number(PS.scaleX) || 100)); PS.scaleY = Math.max(10, Math.min(400, Number(PS.scaleY) || 100)); if (PS.scaleLink) { if (k === 'scaleY') PS.scaleX = PS.scaleY; else PS.scaleY = PS.scaleX; } }
+    if (!raw && PS.img && ['scaleX', 'scaleY', 'scaleLink', 'zoom'].includes(k)) psKeepIn(k);
     if (k === 'stageBg') { try { localStorage.setItem('ps-stage-bg', PS.stageBg || ''); } catch (_) {} }
     if (k === 'preset') { const v = PS.preset; if (v) { const [w, h] = v.split('x').map(parseFloat); PS.pw = w; PS.ph = h; PS.lock = false; PS.mode = 'size'; } }
     if (['pw', 'ph'].includes(k)) { PS.pw = Math.max(5, PS.pw || 5); PS.ph = Math.max(5, PS.ph || 5); PS.preset = ''; if (PS.lock && PS.img) { if (k === 'pw') PS.ph = Math.round(PS.pw / psRatio() * 10) / 10; else PS.pw = Math.round(PS.ph * psRatio() * 10) / 10; } }
     if (k === 'lock' && PS.lock && PS.img) PS.ph = Math.round(PS.pw / psRatio() * 10) / 10;
-    if (['cols', 'rows'].includes(k)) { PS[k] = Math.max(1, Math.min(12, Math.round(PS[k]) || 1)); }
-    if (['maxSheets', 'exactSheets'].includes(k)) PS[k] = Math.max(1, Math.min(144, Math.round(PS[k]) || 1));
+    if (['cols', 'rows'].includes(k)) { PS[k] = Math.max(1, Math.min(PS_MAXN, Math.round(PS[k]) || 1)); }
+    if (k === 'exactSheets') PS[k] = Math.max(1, Math.min(144, Math.round(PS[k]) || 1));
     if (['cropL','cropR','cropT','cropB'].includes(k)) PS[k] = Math.max(0, Math.min(45, PS[k] || 0));
     if (['mL', 'mR', 'mT', 'mB'].includes(k)) { PS[k] = Math.max(0, Math.min(5, Number(PS[k]) || 0)); if (PS.mLink) PS.mL = PS.mR = PS.mT = PS.mB = PS[k]; }
     if (k === 'mLink' && PS.mLink) PS.mR = PS.mT = PS.mB = PS.mL;
     if (k === 'snapStep') PS.snapStep = Math.max(0.01, Math.min(5, Number(PS.snapStep) || 0.1));
     if (k === 'offX' || k === 'offY') PS[k] = Number(PS[k]) || 0;
-    PS.dpi = 300;
-    const G = psGeom();
+    psClampSize(); PS.dpi = 300;
     psSync(); psDraw();
   }
   function psAfterRot() { if (PS.lock && PS.img && PS.mode === 'size') PS.ph = Math.round(PS.pw / psRatio() * 10) / 10; }
+  /* al pasar de modo se conserva lo que ya se veía (hojas ↔ tamaño) */
+  function psSeedMode(next) {
+    const G = psGeom();
+    if (next === 'grid') { PS.cols = G.cols; PS.rows = G.rows; }
+    else if (next === 'exact') PS.exactSheets = Math.max(1, G.cols * G.rows);
+    else if (next === 'size') { PS.pw = Math.max(5, Math.round(G.PW * 10) / 10); PS.ph = Math.max(5, Math.round(G.PH * 10) / 10); PS.preset = ''; if (PS.lock && PS.img) PS.ph = Math.round(PS.pw / psRatio() * 10) / 10; }
+  }
+  /* en "Por tamaño" el póster nunca pasa del máximo de hojas; la proporción se conserva si está bloqueada */
+  function psClampSize() {
+    if (PS.mode !== 'size') return; const G = psGeom(), mw = Math.floor(PS_MAXN * G.stepX * 10) / 10, mh = Math.floor(PS_MAXN * G.stepY * 10) / 10, lk = PS.lock && PS.img;
+    if (PS.pw > mw) { PS.pw = mw; if (lk) PS.ph = Math.round(PS.pw / psRatio() * 10) / 10; }
+    if (PS.ph > mh) { PS.ph = mh; if (lk) PS.pw = Math.round(PS.ph * psRatio() * 10) / 10; }
+  }
+  /* "Respetar margen": al escalar, los cantos no pasan del borde del póster (el margen de impresora). Si ya se pasaba, solo se impide crecer más. */
+  function psKeepIn(k) {
+    if (!PS.keepMargin || !PS.img) return;
+    const G = psGeom(), sn = PS._snap || { scaleX: 100, scaleY: 100, zoom: 100 }, fl = (v) => Math.max(10, Math.floor(v * 10) / 10);
+    const En = psExtent(PS.scaleX / 100, PS.scaleY / 100, PS.zoom / 100), Eo = psExtent(sn.scaleX / 100, sn.scaleY / 100, sn.zoom / 100);
+    const cw = Math.max(G.PW, Eo.w), ch = Math.max(G.PH, Eo.h);
+    const fx = En.w > cw + 1e-6 ? cw / En.w : 1, fy = En.h > ch + 1e-6 ? ch / En.h : 1;
+    if (fx < 1 || fy < 1) {
+      if (k === 'zoom') PS.zoom = fl(PS.zoom * Math.min(fx, fy));
+      else { PS.scaleX = fl(PS.scaleX * fx); PS.scaleY = fl(PS.scaleY * fy); if (PS.scaleLink) PS.scaleX = PS.scaleY = Math.min(PS.scaleX, PS.scaleY); }
+    }
+    const E = psExtent(PS.scaleX / 100, PS.scaleY / 100, PS.zoom / 100);
+    if (E.w <= G.PW + 1e-6) { const m = (G.PW - E.w) / 2; PS.offX = Math.max(-m, Math.min(m, Number(PS.offX) || 0)); }
+    if (E.h <= G.PH + 1e-6) { const m = (G.PH - E.h) / 2; PS.offY = Math.max(-m, Math.min(m, Number(PS.offY) || 0)); }
+  }
   async function psLoadImage(src, name) {
     const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
     PS.img = im; PS.name = name || ''; PS.offX = PS.offY = 0; PS.zoom = 100; PS.scaleX = PS.scaleY = 100; PS.rot = 0; PS.flipH = PS.flipV = false;
@@ -9653,8 +9924,8 @@ document.addEventListener('pointerdown', (e) => {
     else if (a === 'foldTools') { PS.tFold = !PS.tFold; try { localStorage.setItem('ps-tfold', PS.tFold ? '1' : '0'); } catch (_) {} psSync(); }
     else if (a === 'hideL') { PS.lHide = true; psSync(); psDraw(); }
     else if (a === 'showL') { PS.lHide = false; psSync(); psDraw(); }
-    else if (a === 'qreset') { const k = PS.qk || 'zoom'; PS[k] = psQDef(k); if (k === 'rot') psAfterRot(); psChange(k); }
-    else if (a === 'scaleReset') { PS.scaleX = PS.scaleY = 100; psChange('scaleX'); }
+    else if (a === 'qreset') { const k = PS.qk || 'zoom'; PS[k] = psQDef(k); if (k === 'rot') psAfterRot(); psChange(k, true); }
+    else if (a === 'scaleReset') { PS.scaleX = PS.scaleY = 100; psChange('scaleX', true); }
     else if (a === 'stageReset') { PS.stageBg = null; psChange('stageBg'); }
     else if (a === 'closepanel') { PS.pOpen = false; psSync(); psDraw(); }
     else if (a === 'tool') { PS.tool = PS.tool === 'view' ? 'img' : 'view'; psSync(); psDraw(); }
@@ -9664,7 +9935,7 @@ document.addEventListener('pointerdown', (e) => {
     else if (a === 'lines') { PS.detectLines = !PS.detectLines; psSync(); psDraw(); }
     else if (a === 'ctr') { PS.offX = PS.offY = 0; psSync(); psDraw(); }
     else if (a.indexOf('mg:') === 0) { PS.mL = PS.mR = PS.mT = PS.mB = parseFloat(a.slice(3)) || 0; psChange('mL'); }
-    else if (a === 'center') { PS.offX = PS.offY = 0; PS.zoom = 100; PS.scaleX = PS.scaleY = 100; PS.rot = 0; psAfterRot(); psChange('zoom'); }
+    else if (a === 'center') { PS.offX = PS.offY = 0; PS.zoom = 100; PS.scaleX = PS.scaleY = 100; PS.rot = 0; psAfterRot(); psChange('zoom', true); }
     else if (a === 'swap') { [PS.pw, PS.ph] = [PS.ph, PS.pw]; PS.preset = ''; psChange('pw'); }
     else if (a === 'pages') psToPages(false); else if (a === 'replace') psToPages(true); else if (a === 'pdf') psToPdf(); else if (a === 'zip') psToZip(); else if (a === 'print') psPrint();
   }
@@ -9682,7 +9953,7 @@ document.addEventListener('pointerdown', (e) => {
   psBox.addEventListener('click', (e) => {
     const op = e.target.closest('.pe-opt'); if (op) { sfx.tap(); const sel = psBox.querySelector(op.parentElement.dataset.for); const dd = op.closest('details'); if (dd) dd.open = false; if (sel) { sel.value = op.dataset.v; sel.dispatchEvent(new Event(sel.dataset.ps ? 'input' : 'change', { bubbles: true })); } return; }
     const qk = e.target.closest('[data-qk]'); if (qk) { sfx.tap(); PS.qk = qk.dataset.qk; psSync(); return; }
-    const v = e.target.closest('[data-psv]'); if (v) { sfx.tap(); const [k, val] = v.dataset.psv.split(':'); PS[k] = val; psChange(k); return; }
+    const v = e.target.closest('[data-psv]'); if (v) { sfx.tap(); const [k, val] = v.dataset.psv.split(':'); if (k === 'mode' && val !== PS.mode) psSeedMode(val); PS[k] = val; psChange(k); return; }
     const t = e.target.closest('[data-pt]'); if (t) { sfx.tap(); const n = +t.dataset.pt; if (PS.pOpen && PS.tab === n) PS.pOpen = false; else { PS.tab = n; PS.pOpen = true; } psSync(); psDraw(); return; }
     const a = e.target.closest('[data-pa]'); if (a) psAction(a.dataset.pa);
   });
@@ -9699,18 +9970,83 @@ document.addEventListener('pointerdown', (e) => {
   function psSetView(nz, mx, my, wx, wy) {
     const cv = $('psCanvas'), G = PS._G; if (!G) return;
     nz = Math.max(0.25, Math.min(40, nz)); const aw = cv.clientWidth, ah = cv.clientHeight, k = (PS._k0 || 1) * nz;
-    PS.vz = nz; PS.vx = mx - wx * k - (aw / 2 - G.VW * k / 2); PS.vy = my - wy * k - (ah / 2 - G.VH * k / 2);
+    PS.vz = nz; PS.vx = mx - wx * k - (aw / 2 + (PS._sx0 || 0) - G.VW * k / 2); PS.vy = my - wy * k - (ah / 2 + (PS._sy0 || 0) - G.VH * k / 2);
   }
   function psSetZoom(nz, mx, my) {
     const cv = $('psCanvas'); if (!PS._G) { PS.vz = Math.max(0.25, Math.min(40, nz)); return; }
     if (mx == null) { mx = cv.clientWidth / 2; my = cv.clientHeight / 2; }
     psSetView(nz, mx, my, (mx - PS._ox) / PS._k, (my - PS._oy) / PS._k);
   }
+  /* Regla en cm (tipo plano) + medidas de cada lado. Todo en coordenadas del póster: los márgenes de impresora NO cuentan. */
+  function psMeasures(x, G, k, ox, oy, aw, ah, dpr) {
+    if (!PS.rulers && !PS.dims) return;
+    const s = G.s, RH = 16, E = 1e-7;
+    x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cOf = (u, end) => Math.max(0, Math.min(G.cols - 1, Math.floor(u / G.stepX + (end ? -E : E))));
+    const rOf = (v, end) => Math.max(0, Math.min(G.rows - 1, Math.floor(v / G.stepY + (end ? -E : E))));
+    const X = (u, end) => { const c = cOf(u, end); return ox + k * (c * s.w + G.ml + (u - c * G.stepX)); };
+    const Y = (v, end) => { const r = rOf(v, end); return oy + k * (r * s.h + G.mt + (v - r * G.stepY)); };
+    const V = psVisRect() || { x0: G.px, y0: G.py, x1: G.px + G.PW, y1: G.py + G.PH };
+    x.font = '600 9px "JetBrains Mono", monospace'; x.textBaseline = 'alphabetic'; x.lineCap = 'butt';
+    if (PS.rulers) {
+      const NICE = [.1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500], minor = NICE.find(n => n * k >= 5) || 500;
+      const major = NICE.find(n => n >= minor && n * k >= 44 && Math.abs(n / minor - Math.round(n / minor)) < 1e-6) || 500, ink = '#1d2230';
+      x.save(); x.fillStyle = 'rgba(250,250,244,.97)'; x.fillRect(0, 0, aw, RH); x.fillRect(0, 0, RH, ah);
+      /* franjas de margen y rango de la imagen sobre la regla */
+      x.save(); x.beginPath(); x.rect(RH, 0, aw - RH, RH); x.clip();
+      x.fillStyle = 'rgba(224,48,154,.28)'; for (let c = 0; c < G.cols; c++) { x.fillRect(ox + k * c * s.w, 0, k * G.ml, RH); x.fillRect(ox + k * (c * s.w + s.w - G.mr), 0, k * G.mr, RH); }
+      x.fillStyle = 'rgba(0,140,255,.30)'; { const a = Math.max(RH, X(V.x0, false)), b = X(V.x1, true); if (b > a) x.fillRect(a, 0, b - a, RH); }
+      x.fillStyle = ink; x.strokeStyle = ink; x.lineWidth = 1; x.beginPath(); const lab = [];
+      for (let c = 0; c < G.cols; c++) {
+        const u0 = Math.max(G.px, c * G.stepX), u1 = Math.min(G.px + G.PW, c * G.stepX + G.stepX); if (u1 <= u0) continue;
+        const a0 = ox + k * (c * s.w + G.ml + (u0 - c * G.stepX)), a1 = ox + k * (c * s.w + G.ml + (u1 - c * G.stepX)); if (a1 < RH || a0 > aw) continue;
+        const i0 = Math.ceil((u0 - G.px) / minor - 1e-6), i1 = Math.floor((u1 - G.px) / minor + 1e-6);
+        for (let i = i0; i <= i1; i++) {
+          const p = i * minor, sp = ox + k * (c * s.w + G.ml + (G.px + p - c * G.stepX)); if (sp < RH || sp > aw) continue;
+          const mj = Math.abs(p / major - Math.round(p / major)) < 1e-6; x.moveTo(Math.round(sp) + .5, RH); x.lineTo(Math.round(sp) + .5, RH - (mj ? 9 : 4)); if (mj) lab.push([sp, gFmt(p)]);
+        }
+      }
+      x.stroke(); x.textAlign = 'left'; lab.forEach(([sp, t]) => x.fillText(t, sp + 2, 8)); x.restore();
+      x.save(); x.beginPath(); x.rect(0, RH, RH, ah - RH); x.clip();
+      x.fillStyle = 'rgba(224,48,154,.28)'; for (let r = 0; r < G.rows; r++) { x.fillRect(0, oy + k * r * s.h, RH, k * G.mt); x.fillRect(0, oy + k * (r * s.h + s.h - G.mb), RH, k * G.mb); }
+      x.fillStyle = 'rgba(0,140,255,.30)'; { const a = Math.max(RH, Y(V.y0, false)), b = Y(V.y1, true); if (b > a) x.fillRect(0, a, RH, b - a); }
+      x.fillStyle = ink; x.strokeStyle = ink; x.lineWidth = 1; x.beginPath(); const labY = [];
+      for (let r = 0; r < G.rows; r++) {
+        const v0 = Math.max(G.py, r * G.stepY), v1 = Math.min(G.py + G.PH, r * G.stepY + G.stepY); if (v1 <= v0) continue;
+        const b0 = oy + k * (r * s.h + G.mt + (v0 - r * G.stepY)), b1 = oy + k * (r * s.h + G.mt + (v1 - r * G.stepY)); if (b1 < RH || b0 > ah) continue;
+        const i0 = Math.ceil((v0 - G.py) / minor - 1e-6), i1 = Math.floor((v1 - G.py) / minor + 1e-6);
+        for (let i = i0; i <= i1; i++) {
+          const p = i * minor, sp = oy + k * (r * s.h + G.mt + (G.py + p - r * G.stepY)); if (sp < RH || sp > ah) continue;
+          const mj = Math.abs(p / major - Math.round(p / major)) < 1e-6; x.moveTo(RH, Math.round(sp) + .5); x.lineTo(RH - (mj ? 9 : 4), Math.round(sp) + .5); if (mj) labY.push([sp, gFmt(p)]);
+        }
+      }
+      x.stroke(); x.textAlign = 'right'; labY.forEach(([sp, t]) => { x.save(); x.translate(8, sp + 2); x.rotate(-Math.PI / 2); x.fillText(t, 0, 0); x.restore(); }); x.restore();
+      x.strokeStyle = 'rgba(0,0,0,.4)'; x.lineWidth = 1; x.beginPath(); x.moveTo(0, RH + .5); x.lineTo(aw, RH + .5); x.moveTo(RH + .5, 0); x.lineTo(RH + .5, ah); x.stroke();
+      x.fillStyle = '#e8e8de'; x.fillRect(0, 0, RH, RH); x.fillStyle = ink; x.font = '700 7px "JetBrains Mono", monospace'; x.textAlign = 'center'; x.fillText('cm', RH / 2, RH / 2 + 2.5);
+      x.restore();
+    }
+    if (PS.dims) {
+      const col = '#0a84ff', lo = PS.rulers ? RH + 3 : 3, x0 = X(V.x0, false), x1 = X(V.x1, true), y0 = Y(V.y0, false), y1 = Y(V.y1, true);
+      const dim = (horiz, a, b, p, text) => {
+        const hi = (horiz ? aw : ah) - 3, vmin = PS.rulers ? RH + 3 : 3; if (b < lo || a > hi || p < vmin || p > (horiz ? ah : aw) - 3) return;
+        x.save(); x.font = '700 10px "JetBrains Mono", monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
+        const stroke = (w, c) => { x.lineWidth = w; x.strokeStyle = c; x.beginPath(); if (horiz) { x.moveTo(a, p); x.lineTo(b, p); x.moveTo(a, p - 4); x.lineTo(a, p + 4); x.moveTo(b, p - 4); x.lineTo(b, p + 4); } else { x.moveTo(p, a); x.lineTo(p, b); x.moveTo(p - 4, a); x.lineTo(p + 4, a); x.moveTo(p - 4, b); x.lineTo(p + 4, b); } x.stroke(); };
+        stroke(3.2, 'rgba(255,255,255,.92)'); stroke(1.3, col);
+        const tw = x.measureText(text).width + 10, va = Math.max(a, lo), vb = Math.min(b, hi); let m = (va + vb) / 2; if (vb - va > tw) m = Math.max(va + tw / 2, Math.min(vb - tw / 2, (a + b) / 2));
+        x.translate(horiz ? m : p, horiz ? p : m); if (!horiz) x.rotate(-Math.PI / 2);
+        x.fillStyle = col; x.fillRect(-tw / 2, -8, tw, 16); x.fillStyle = '#fff'; x.fillText(text, 0, .5); x.restore();
+      };
+      const wT = gFmt(V.x1 - V.x0) + ' cm', hT = gFmt(V.y1 - V.y0) + ' cm', bigH = (y1 - y0) > 40, bigW = (x1 - x0) > 40;
+      dim(true, x0, x1, y0 + 12, wT); if (bigH) dim(true, x0, x1, y1 - 12, wT);
+      dim(false, y0, y1, x0 + 12, hT); if (bigW) dim(false, y0, y1, x1 - 12, hT);
+    }
+  }
   function psPaint() {
     const cv = $('psCanvas'), st = cv.parentElement, aw = st.clientWidth, ah = st.clientHeight; if (aw <= 10 || ah <= 10) return;
-    const G = psGeom(), dpr = Math.min(2, window.devicePixelRatio || 1), pad = 14;
-    const k0 = Math.max(0.001, Math.min((aw - pad * 2) / G.VW, (ah - pad * 2) / G.VH)), k = k0 * PS.vz;
-    const ox = aw / 2 - G.VW * k / 2 + PS.vx, oy = ah / 2 - G.VH * k / 2 + PS.vy;
+    const G = psGeom(), dpr = Math.min(2, window.devicePixelRatio || 1), pad = 14, RH = 16, padL = PS.rulers ? pad + RH : pad, padT = PS.rulers ? pad + RH : pad;
+    const k0 = Math.max(0.001, Math.min((aw - padL - pad) / G.VW, (ah - padT - pad) / G.VH)), k = k0 * PS.vz;
+    const sx0 = (padL - pad) / 2, sy0 = (padT - pad) / 2; PS._sx0 = sx0; PS._sy0 = sy0;
+    const ox = aw / 2 + sx0 - G.VW * k / 2 + PS.vx, oy = ah / 2 + sy0 - G.VH * k / 2 + PS.vy;
     const W = Math.round(aw * dpr), H = Math.round(ah * dpr); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     PS._k = k; PS._k0 = k0; PS._ox = ox; PS._oy = oy; PS._G = G;
     const x = cv.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, W, H);
@@ -9741,6 +10077,7 @@ document.addEventListener('pointerdown', (e) => {
       if (PS.detectLines && c > 0) { x.save(); x.strokeStyle = 'rgba(255,174,0,.95)'; x.lineWidth = 1.5 * px; x.setLineDash([5 * px, 4 * px]); x.beginPath(); x.moveTo(UX, UY); x.lineTo(UX, UY + s.uh); x.stroke(); x.restore(); }
       if (PS.detectLines && r > 0) { x.save(); x.strokeStyle = 'rgba(255,174,0,.95)'; x.lineWidth = 1.5 * px; x.setLineDash([5 * px, 4 * px]); x.beginPath(); x.moveTo(UX, UY); x.lineTo(UX + s.uw, UY); x.stroke(); x.restore(); }
     }
+    psMeasures(x, G, k, ox, oy, aw, ah, dpr);
   }
   (function () {
     const cv = $('psCanvas'), ptrs = new Map(); let pinch = null, moved = 0, raw = null;
@@ -10136,6 +10473,8 @@ document.addEventListener('pointerdown', (e) => {
     set('thumbs', state.thumbsVisible !== false); set('grid', $('showGrid').checked); set('snap', $('snapGrid').checked);
     set('guides', GC.guides); set('protect', state.textProtect); set('multi', multiSelectMode);
     set('panels', panelsVisible()); set('collapse', BODY.classList.contains('ribbon-collapsed'));
+    viewPane.querySelectorAll('[data-vm]').forEach(b => b.classList.toggle('active', b.dataset.vm === vMode));
+    const vc = viewPane.querySelector('[data-vmc]'); if (vc && document.activeElement !== vc) vc.value = vCols;
     const z = viewPane.querySelector('[data-vw="zoom"]'), zp = Math.round(zoomScale * 100);
     if (z && document.activeElement !== z) z.value = zp;
     const zl = viewPane.querySelector('[data-vwz]'); if (zl) zl.textContent = zp + '%';
@@ -10154,6 +10493,8 @@ document.addEventListener('pointerdown', (e) => {
     const c = e.target.closest('[data-vw]'); if (!c || c.type !== 'checkbox' || !VW[c.dataset.vw]) return;
     sfx.tap(); VW[c.dataset.vw](c.checked); setTimeout(uiSyncView, 60);
   });
+  viewPane.addEventListener('click', (e) => { const b = e.target.closest('[data-vm]'); if (!b) return; sfx.tap(); setViewMode(b.dataset.vm); setTimeout(uiSyncView, 60); });
+  viewPane.addEventListener('change', (e) => { const c = e.target.closest('[data-vmc]'); if (!c) return; setViewCols(c.value); setTimeout(uiSyncView, 60); });
   viewPane.addEventListener('input', (e) => {
     const c = e.target.closest('[data-vw="zoom"]'); if (!c) return;
     const v = parseFloat(c.value); if (v > 0) setZoom(v / 100);
@@ -10651,42 +10992,63 @@ document.addEventListener('pointerdown', (e) => {
   /* ====== v18: cursor y selección dibujados sobre el texto real de la hoja (celular) ====== */
   { const st = document.createElement('style'); st.textContent = '#sxOv{position:fixed;z-index:31;pointer-events:none;box-sizing:border-box}#sxOv i{position:absolute;display:block;background:rgba(59,130,196,.35)}#sxOv b{position:absolute;display:block;width:2px;margin-left:-1px;background:var(--accent);animation:sxb 1s steps(1) infinite}@keyframes sxb{50%{opacity:0}}#inlineEd.sx-own{caret-color:transparent!important}#inlineEd.sx-own::selection{background:transparent!important}'; document.head.appendChild(st); }
   const sxOv = document.createElement('div'); sxOv.id = 'sxOv'; sxOv.style.display = 'none'; document.body.appendChild(sxOv);
+  function ovBuild(el, v, s0, s1) {
+    const t = el.tx, z = PX_PER_CM * zoomScale, w = el.wCm * z, h = el.hCm * z;
+    const L = txLayout(SCR, el, z), ps = [0];
+    for (let i = 0; i < v.length; i++) if (v[i] === '\n') ps.push(i + 1);
+    const setF = (st2, f) => { SCR.font = fontSpec(st2, f); if ('letterSpacing' in SCR) SCR.letterSpacing = ((st2.ls || 0) / 100 * f) + 'px'; };
+    let y = (t.valign === 'top' || el.flow) ? L.pad : t.valign === 'bottom' ? h - L.pad - L.th : (h - L.th) / 2;
+    const geo = L.lines.map(l => {
+      y += l.gap; const top = y; y += l.lh;
+      const lil = l.il === undefined ? L.il : l.il, lir = l.ir === undefined ? L.ir : l.ir, lhg = l.hang === undefined ? L.hang : l.hang, lind = l.ind === undefined ? L.ind : l.ind, al = l.al || t.align;
+      const left = L.pad + lil + lhg + (l.first ? lind : 0), cw = w - 2 * L.pad - lil - lir - lhg - (l.first ? lind : 0);
+      const segs = l.segs || [{ t: l.s, st: t, fs: L.fs, sp: false }], ws = segs.map(g => { setF(g.st, g.fs); return SCR.measureText(g.t).width; });
+      let lw = ws.reduce((n, q) => n + q, 0); const nsp = segs.filter(g => g.sp).length, jj = !!l.segs && al === 'justify' && !l.last && nsp > 0, ex = jj ? (cw - lw) / nsp : 0; if (jj) lw = cw;
+      const x0 = al === 'right' ? left + cw - lw : al === 'center' ? left + cw / 2 - lw / 2 : left, start = (ps[l.pi] || 0) + (l.o || 0);
+      return { l, top, h: l.lh, x0, segs, ws, ex, start, end: start + l.s.length, fz: l.mfs || L.fs };
+    });
+    const xAt = (G, k) => { let x = G.x0, rem = Math.max(0, Math.min(k, G.l.s.length)); for (let i = 0; i < G.segs.length && rem > 0; i++) { const g = G.segs[i], n = g.t.length; if (rem >= n) { x += G.ws[i] + (g.sp ? G.ex : 0); rem -= n; } else { setF(g.st, g.fs); x += SCR.measureText(g.t.slice(0, rem)).width; rem = 0; } } return x; };
+    let html = '';
+    if (s0 === s1) {
+      let pi0 = 0; while (pi0 + 1 < ps.length && ps[pi0 + 1] <= s0) pi0++;
+      let G = null; geo.forEach(g => { if (g.l.pi === pi0 && g.start <= s0) G = g; }); if (!G) G = geo.find(g => g.l.pi === pi0) || null;
+      if (G) { const ch = Math.min(G.h, G.fz * 1.25); html = '<b style="left:' + xAt(G, s0 - G.start).toFixed(1) + 'px;top:' + (G.top + G.h / 2 - ch / 2).toFixed(1) + 'px;height:' + ch.toFixed(1) + 'px"></b>'; }
+    } else {
+      geo.forEach(G => {
+        const a = Math.max(s0, G.start), b = Math.min(s1, G.end), ch = Math.min(G.h, G.fz * 1.25), tp = (G.top + G.h / 2 - ch / 2).toFixed(1);
+        let x1 = null, x2 = null;
+        if (b > a) { x1 = xAt(G, a - G.start); x2 = xAt(G, b - G.start); }
+        if (s1 > G.end && s0 <= G.end) { if (x1 === null) { x1 = xAt(G, G.end - G.start); x2 = x1; } x2 += G.fz * 0.3; }
+        if (x1 !== null && x2 > x1) html += '<i style="left:' + x1.toFixed(1) + 'px;top:' + tp + 'px;width:' + (x2 - x1).toFixed(1) + 'px;height:' + ch.toFixed(1) + 'px"></i>';
+      });
+    }
+    return html;
+  }
   function sxOverlay() {
     try {
-      const el = edTA && findEl(editingTextId), d = el && $('stage').querySelector(`.el[data-id="${editingTextId}"]`);
-      if (!el || !d || !edTA.classList.contains('ov')) { sxOv.style.display = 'none'; if (edTA) edTA.classList.remove('sx-own'); return; }
-      const t = el.tx, z = PX_PER_CM * zoomScale, r = d.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, w = el.wCm * z, h = el.hCm * z;
-      const L = txLayout(SCR, el, z), v = edTA.value, s0 = edTA.selectionStart, s1 = edTA.selectionEnd, ps = [0];
-      for (let i = 0; i < v.length; i++) if (v[i] === '\n') ps.push(i + 1);
-      const setF = (st2, f) => { SCR.font = fontSpec(st2, f); if ('letterSpacing' in SCR) SCR.letterSpacing = ((st2.ls || 0) / 100 * f) + 'px'; };
-      let y = (t.valign === 'top' || el.flow) ? L.pad : t.valign === 'bottom' ? h - L.pad - L.th : (h - L.th) / 2;
-      const geo = L.lines.map(l => {
-        y += l.gap; const top = y; y += l.lh;
-        const lil = l.il === undefined ? L.il : l.il, lir = l.ir === undefined ? L.ir : l.ir, lhg = l.hang === undefined ? L.hang : l.hang, lind = l.ind === undefined ? L.ind : l.ind, al = l.al || t.align;
-        const left = L.pad + lil + lhg + (l.first ? lind : 0), cw = w - 2 * L.pad - lil - lir - lhg - (l.first ? lind : 0);
-        const segs = l.segs || [{ t: l.s, st: t, fs: L.fs, sp: false }], ws = segs.map(g => { setF(g.st, g.fs); return SCR.measureText(g.t).width; });
-        let lw = ws.reduce((n, q) => n + q, 0); const nsp = segs.filter(g => g.sp).length, jj = !!l.segs && al === 'justify' && !l.last && nsp > 0, ex = jj ? (cw - lw) / nsp : 0; if (jj) lw = cw;
-        const x0 = al === 'right' ? left + cw - lw : al === 'center' ? left + cw / 2 - lw / 2 : left, start = (ps[l.pi] || 0) + (l.o || 0);
-        return { l, top, h: l.lh, x0, segs, ws, ex, start, end: start + l.s.length, fz: l.mfs || L.fs };
-      });
-      const xAt = (G, k) => { let x = G.x0, rem = Math.max(0, Math.min(k, G.l.s.length)); for (let i = 0; i < G.segs.length && rem > 0; i++) { const g = G.segs[i], n = g.t.length; if (rem >= n) { x += G.ws[i] + (g.sp ? G.ex : 0); rem -= n; } else { setF(g.st, g.fs); x += SCR.measureText(g.t.slice(0, rem)).width; rem = 0; } } return x; };
-      let html = '';
-      if (s0 === s1) {
-        let pi0 = 0; while (pi0 + 1 < ps.length && ps[pi0 + 1] <= s0) pi0++;
-        let G = null; geo.forEach(g => { if (g.l.pi === pi0 && g.start <= s0) G = g; }); if (!G) G = geo.find(g => g.l.pi === pi0) || null;
-        if (G) { const ch = Math.min(G.h, G.fz * 1.25); html = '<b style="left:' + xAt(G, s0 - G.start).toFixed(1) + 'px;top:' + (G.top + G.h / 2 - ch / 2).toFixed(1) + 'px;height:' + ch.toFixed(1) + 'px"></b>'; }
-      } else {
-        geo.forEach(G => {
-          const a = Math.max(s0, G.start), b = Math.min(s1, G.end), ch = Math.min(G.h, G.fz * 1.25), tp = (G.top + G.h / 2 - ch / 2).toFixed(1);
-          let x1 = null, x2 = null;
-          if (b > a) { x1 = xAt(G, a - G.start); x2 = xAt(G, b - G.start); }
-          if (s1 > G.end && s0 <= G.end) { if (x1 === null) { x1 = xAt(G, G.end - G.start); x2 = x1; } x2 += G.fz * 0.3; }
-          if (x1 !== null && x2 > x1) html += '<i style="left:' + x1.toFixed(1) + 'px;top:' + tp + 'px;width:' + (x2 - x1).toFixed(1) + 'px;height:' + ch.toFixed(1) + 'px"></i>';
+      const el0 = edTA && findEl(editingTextId);
+      if (!el0 || !edTA.classList.contains('ov')) { sxOv.style.display = 'none'; if (edTA) edTA.classList.remove('sx-own'); return; }
+      const z = PX_PER_CM * zoomScale, d = state.doc, jobs = [];
+      if (edTA._g && d && d.recs && d.recs.length) {
+        const g0 = edTA.selectionStart, g1 = edTA.selectionEnd, col = g0 === g1;
+        let jc = -1; if (col) { jc = d.recs.findIndex(q => g0 <= q.e); if (jc < 0) jc = d.recs.length - 1; }
+        d.recs.forEach((r, k) => {
+          const pg = docPage(r.pid), el = pg && pg.els.find(e => e.flow); if (!el) return;
+          if (col) { if (k === jc) jobs.push({ el, v: el.text, a: Math.max(0, Math.min(el.text.length, g0 - r.s)), b: Math.max(0, Math.min(el.text.length, g0 - r.s)) }); }
+          else if (g1 > r.s && g0 <= r.e) jobs.push({ el, v: el.text, a: Math.max(0, g0 - r.s), b: g1 > r.e ? el.text.length + 1 : g1 - r.s });
         });
-      }
-      if (!html) { sxOv.style.display = 'none'; edTA.classList.remove('sx-own'); return; }
-      sxOv.style.cssText = 'left:' + (cx - w / 2) + 'px;top:' + (cy - h / 2) + 'px;width:' + w + 'px;height:' + h + 'px;transform:' + elCss(el) + ';display:block';
-      sxOv.innerHTML = html; edTA.classList.add('sx-own');
+      } else jobs.push({ el: el0, v: edTA.value, a: edTA.selectionStart, b: edTA.selectionEnd });
+      let out = '';
+      jobs.forEach(J => {
+        const el = J.el, w = el.wCm * z, h = el.hCm * z, dEl = $('stage').querySelector(`.el[data-id="${el.id}"]`); let cx, cy;
+        if (dEl) { const r = dEl.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+        else { const pi = state.pages.findIndex(p => p.els.includes(el)), gx = pi >= 0 && $('stage').querySelector(`.pgx[data-vi="${pi}"]`); if (!gx) return; const r = gx.getBoundingClientRect(); cx = r.left + (el.xCm + el.wCm / 2) * z; cy = r.top + (el.yCm + el.hCm / 2) * z; }
+        const html = ovBuild(el, J.v, J.a, J.b); if (!html) return;
+        out += '<div style="position:absolute;left:' + (cx - w / 2) + 'px;top:' + (cy - h / 2) + 'px;width:' + w + 'px;height:' + h + 'px;transform:' + elCss(el) + '">' + html + '</div>';
+      });
+      if (!out) { sxOv.style.display = 'none'; edTA.classList.remove('sx-own'); return; }
+      sxOv.style.cssText = 'left:0;top:0;width:0;height:0;display:block';
+      sxOv.innerHTML = out; edTA.classList.add('sx-own');
     } catch (_) { sxOv.style.display = 'none'; if (edTA) edTA.classList.remove('sx-own'); }
   }
   const _placeEd = placeEd; placeEd = function () { _placeEd.apply(this, arguments); sxOverlay(); };
@@ -10888,7 +11250,7 @@ body.rg-open #stage .el{pointer-events:none!important}
   menu.innerHTML = '<button type="button" data-m="cut">Cortar</button><i></i><button type="button" data-m="copy">Copiar</button><i></i><button type="button" data-m="paste">Pegar</button><i></i><button type="button" data-m="all">Todo</button>';
   document.body.appendChild(menu);
   let cur = null, forced = false, hideT = 0;
-  const isF = (el) => !!(el && el.tagName && !el.readOnly && !el.disabled && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|search|url|tel|password|)$/.test(el.type || ''))) && typeof el.selectionStart === 'number');
+  const isF = (el) => !!(el && el.tagName && !(el.closest && el.closest('#pasteBox')) && !el.readOnly && !el.disabled && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|search|url|tel|password|)$/.test(el.type || ''))) && typeof el.selectionStart === 'number');
   const hasSel = (el) => el.selectionStart !== el.selectionEnd;
   function stackTop() {
     let t = Infinity;
@@ -10921,21 +11283,70 @@ body.rg-open #stage .el{pointer-events:none!important}
   window.addEventListener('resize', place);
   menu.addEventListener('pointerdown', (e) => e.preventDefault());
   /* Portapapeles de texto: sin ventanitas; si el sistema no deja leer, usa el último texto copiado aquí */
-  let mem = '';
-  window.miniClipSet = (t) => { mem = t; };
+  let mem = '', memStale = false;
+  window.miniClipSet = (t) => { mem = t; memStale = false; };
+  /* si la página pierde el foco (copiaste en Gemini, DeepSeek, Google...) lo guardado aquí ya puede ser viejo */
+  document.addEventListener('visibilitychange', () => { if (document.hidden && mem) memStale = true; });
+  window.addEventListener('blur', () => { if (mem) memStale = true; });
+
+  /* ---- Lector de portapapeles robusto ----
+     1) API del sistema (si el navegador la permite)  2) texto copiado dentro de la app  3) cuadro "Pegar texto" con pegado nativo
+     En archivos abiertos como content:// / file:// Android no deja leer el portapapeles: por eso el paso 3 siempre funciona. */
+  const pbCss = document.createElement('style');
+  pbCss.textContent = '#pasteBox{position:fixed;left:8px;right:8px;top:8px;z-index:2147483500;display:none;flex-direction:column;gap:8px;padding:10px;box-sizing:border-box;background:var(--panel,#262626);color:var(--text,#eee);border:1px solid var(--accent,#e67e22);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.5);font:13px/1.3 system-ui,sans-serif}#pasteBox.show{display:flex}#pasteBox .pb-h{font-weight:700;font-size:14px}#pasteBox .pb-s{font-size:11px;opacity:.75}#pasteBox textarea{width:100%;box-sizing:border-box;height:min(30vh,200px);resize:none;padding:8px;border:1px solid var(--line,#666);border-radius:8px;background:#fff;color:#000;font:14px/1.35 system-ui,sans-serif;user-select:text;-webkit-user-select:text}#pasteBox .pb-b{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}#pasteBox button{min-height:38px;padding:0 14px;border-radius:8px;border:1px solid var(--line,#666);background:var(--panel,#333);color:var(--text,#eee);font-size:13px}#pasteBox button.pb-ok{background:var(--accent,#e67e22);border-color:transparent;color:#fff;font-weight:700}';
+  document.head.appendChild(pbCss);
+  let pbBox = null, pbDone = null;
+  function askPaste() {
+    return new Promise((resolve) => {
+      if (!pbBox) {
+        pbBox = document.createElement('div'); pbBox.id = 'pasteBox';
+        pbBox.innerHTML = '<div class="pb-h">Pegar texto</div><div class="pb-s">Mantén pulsado dentro del cuadro y elige «Pegar» (o usa el portapapeles del teclado). Se inserta solo; admite documentos largos.</div><textarea spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Texto a pegar"></textarea><div class="pb-s pb-c"></div><div class="pb-b"><button type="button" class="pb-mem">Último copiado aquí</button><button type="button" class="pb-no">Cancelar</button><button type="button" class="pb-ok">Insertar</button></div>';
+        document.body.appendChild(pbBox);
+        const ta = pbBox.querySelector('textarea'), cnt = pbBox.querySelector('.pb-c'); let prev = 0, tm = 0;
+        const fin = (v) => { clearTimeout(tm); if (!pbDone) return; const f = pbDone; pbDone = null; pbBox.classList.remove('show'); try { ta.blur(); } catch (_) {} f(v || ''); };
+        const upd = () => { const n = (ta.value.trim().match(/\S+/g) || []).length; cnt.textContent = ta.value ? n.toLocaleString('es') + ' palabras · ' + ta.value.length.toLocaleString('es') + ' caracteres' : ''; };
+        ta.addEventListener('paste', () => { clearTimeout(tm); tm = setTimeout(() => { upd(); if (ta.value) fin(ta.value); }, 80); });
+        ta.addEventListener('input', () => { upd(); const d = ta.value.length - prev; prev = ta.value.length; if (d >= 20) { clearTimeout(tm); tm = setTimeout(() => { if (ta.value) fin(ta.value); }, 350); } });
+        ta.addEventListener('keydown', (e) => { if (e.key === 'Escape') fin(''); });
+        pbBox.querySelector('.pb-ok').addEventListener('click', () => fin(ta.value));
+        pbBox.querySelector('.pb-no').addEventListener('click', () => fin(''));
+        pbBox.querySelector('.pb-mem').addEventListener('click', () => fin(mem));
+        pbBox._reset = () => { ta.value = ''; prev = 0; upd(); };
+      }
+      if (pbDone) pbDone('');
+      pbDone = resolve; pbBox._reset();
+      pbBox.querySelector('.pb-mem').style.display = mem ? '' : 'none';
+      const vv = window.visualViewport; pbBox.style.top = ((vv ? vv.offsetTop : 0) + 8) + 'px';
+      pbBox.classList.add('show');
+      setTimeout(() => { try { pbBox.querySelector('textarea').focus(); } catch (_) {} }, 30);
+    });
+  }
+  window.miniReadClip = async function () {
+    try { if (navigator.clipboard && navigator.clipboard.readText) { const t = await navigator.clipboard.readText(); if (t) return t; } } catch (_) {}
+    if (mem && !memStale) return mem;
+    return await askPaste();
+  };
+  /* pegado nativo (menú del teclado / Gboard) dentro del editor: mismo camino rápido */
+  document.addEventListener('paste', (e) => {
+    const t = e.target, ed = document.getElementById('inlineEd'); if (!ed || !t || t.closest && t.closest('#pasteBox')) return;
+    if (t !== ed && !(t.classList && t.classList.contains('km-v') && t.value === ed.value)) return;
+    const txt = e.clipboardData && e.clipboardData.getData('text/plain'); if (!txt) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (!(window.miniPasteStyled && window.miniPasteStyled(txt))) insert(t, txt);
+  }, true);
   window.miniClipMem = () => { if (!mem && window.showToast) window.showToast('Portapapeles vacío', 'info'); return mem; };
-  const insert = (el, t) => { try { el.focus({ preventScroll: true }); } catch (_) {} let ok = false; try { ok = document.execCommand('insertText', false, t); } catch (_) {} if (!ok) { el.setRangeText(t, el.selectionStart, el.selectionEnd, 'end'); el.dispatchEvent(new Event('input', { bubbles: true })); } };
+  const insert = (el, t) => { try { el.focus({ preventScroll: true }); } catch (_) {} let ok = false; if (t.length < 1500) { try { ok = document.execCommand('insertText', false, t); } catch (_) {} } if (!ok) { el.setRangeText(t, el.selectionStart, el.selectionEnd, 'end'); el.dispatchEvent(new Event('input', { bubbles: true })); } };
   const Clip = {
     async copy(el, cut) {
-      const s = el.value.slice(el.selectionStart, el.selectionEnd); if (!s) return; mem = s;
+      const s = el.value.slice(el.selectionStart, el.selectionEnd); if (!s) return; mem = s; memStale = false;
       try { await navigator.clipboard.writeText(s); } catch (_) { try { const a = document.createElement('textarea'); a.value = s; a.style.cssText = 'position:fixed;opacity:0;left:-99px'; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } catch (__) {} }
       try { el.focus({ preventScroll: true }); } catch (_) {}
       if (cut) insert(el, ''); else { const p = el.selectionEnd; try { el.setSelectionRange(el.selectionStart, p); } catch (_) {} }
     },
     async paste(el) {
-      let t = ''; try { t = await navigator.clipboard.readText(); } catch (_) {}
-      if (!t) t = mem; if (!t) { if (window.showToast) window.showToast('Nada que pegar', 'info'); return; }
-      if (el.id === 'inlineEd' && window.miniPasteStyled && window.miniPasteStyled(t)) return;
+      const t = await window.miniReadClip(); if (!t) return;
+      const ed = document.getElementById('inlineEd');
+      if (ed && (el === ed || (el.classList && el.classList.contains('km-v') && el.value === ed.value)) && window.miniPasteStyled && window.miniPasteStyled(t)) return;
       insert(el, t);
     }
   };
