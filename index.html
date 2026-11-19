@@ -11598,5 +11598,213 @@ body.rg-open #stage .el{pointer-events:none!important}
   W.addEventListener('resize', close);
 })();
 </script>
+
+<!-- ===== Adaptación unificada de paneles, ventanas, menús e inspectores ===== -->
+<style id="uiAdapt">
+:root { --ua-top: 48px; --ua-vh: 100dvh; --ua-gap: 8px; }
+
+/* 1) Ventanas emergentes: nunca más altas que la pantalla, con scroll interno y zonas seguras */
+:where(.modal) { padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-right)); }
+:where(.modal) > .modalbox { max-height: calc(var(--ua-vh) - 20px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; box-sizing: border-box; max-width: min(460px, 100%); }
+.modalbox .row { flex-wrap: wrap; }
+.modalbox select, .modalbox input[type=text], .modalbox input[type=number] { max-width: 100%; box-sizing: border-box; }
+.confirm-box { max-height: calc(var(--ua-vh) - 24px); overflow-y: auto; }
+.theme-modal { max-height: min(80dvh, calc(var(--ua-vh) - 24px)); max-width: calc(100vw - 20px); }
+
+/* 2) Menús flotantes: caben en pantalla y se desplazan si hace falta */
+.context-menu { max-height: min(65dvh, calc(var(--ua-vh) - 16px)); max-width: min(200px, calc(100vw - 16px)); }
+.dropdown-menu, #moreMenu { max-height: calc(var(--ua-vh) - var(--ua-top) - 12px); max-width: calc(100vw - 12px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+#ctxPop, #fontPop, #txPop, #ulPop { max-height: calc(var(--ua-vh) - var(--ua-top) - 10px); overscroll-behavior: contain; }
+#ctxPop .cp-body, #fontPop, #txPop, #ulPop { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+#ctxPop .cp-body::-webkit-scrollbar, #fontPop::-webkit-scrollbar, #txPop::-webkit-scrollbar, #ulPop::-webkit-scrollbar { display: none; }
+
+/* 3) Inspector: nunca tapa más de lo necesario; en horizontal se acopla a la derecha y deja la hoja libre */
+.inspector.expanded { max-height: min(72dvh, calc(var(--ua-vh) - var(--ua-top) - 12px)); }
+.inspector-body { overscroll-behavior: contain; }
+.inspector-body input[type=range] { min-height: 24px; }
+.inspector-body .row { flex-wrap: wrap; gap: 6px; }
+.inspector-body .row > * { min-width: 0; }
+@media (orientation: landscape) and (max-height: 540px) {
+  .inspector { left: auto; right: 6px; width: min(300px, 44vw); }
+  .inspector.expanded { max-height: calc(var(--ua-vh) - var(--ua-top) - 12px); }
+  .inspector-body { padding: 6px 8px 12px; }
+  .inspector-body .adjust-box { padding: 6px 8px; margin-top: 4px; }
+  .inspector-body label { margin: 4px 0 1px; font-size: 10px; }
+  :where(.modal) > .modalbox { padding: 10px 12px; max-width: min(560px, 100%); }
+  .modalbox h2 { font-size: 13px; margin-bottom: 4px; }
+  .modalbox label { margin-top: 5px; }
+  .context-menu { max-width: 190px; }
+}
+@media (max-width: 380px) { .modalbox { padding: 12px; } }
+
+/* 4) Panel de capas lateral: respeta la altura visible */
+#rightPanel { max-height: calc(var(--ua-vh) - var(--ua-top)); }
+@media (max-width: 849px) { #rightPanel { max-height: calc(var(--ua-vh) - var(--ua-top) - 34px); } }
+
+/* 5) Etiqueta emergente para botones solo-icono (mantener pulsado) */
+#uaTip { position: fixed; z-index: 2147483600; display: none; max-width: 180px; padding: 4px 8px; border-radius: 7px; background: var(--text, #222); color: var(--panel, #fff); font: 600 11px/1.25 Inter, system-ui, sans-serif; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+#uaTip.show { display: block; }
+</style>
+
+<script>
+/* Adaptación unificada: mide la pantalla visible, mantiene los paneles dentro y añade etiquetas a los iconos */
+(function () {
+  'use strict';
+  var root = document.documentElement, busy = false;
+
+  function metrics() {
+    var vv = window.visualViewport, h = vv ? vv.height : window.innerHeight;
+    root.style.setProperty('--ua-vh', Math.round(h) + 'px');
+    var hd = document.querySelector('header');
+    if (hd) { var b = Math.round(hd.getBoundingClientRect().bottom); if (b > 0 && b < 200) root.style.setProperty('--ua-top', b + 'px'); }
+  }
+
+  /* Mantiene un panel flotante dentro de la pantalla visible (sin cambiar su posición si ya cabe) */
+  function clamp(el) {
+    if (!el || busy) return;
+    var cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.position !== 'fixed' || el.hidden) return;
+    if (cs.transform && cs.transform !== 'none' && el.id === 'themeModal') return;
+    var vv = window.visualViewport, vw = window.innerWidth, vh = vv ? vv.offsetTop + vv.height : window.innerHeight, M = 6;
+    var r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+    busy = true;
+    try {
+      var avail = vh - M - Math.max(M, r.top);
+      if (r.bottom > vh - M + 1 && avail >= 80 && el.scrollHeight > avail) {
+        el.style.maxHeight = Math.floor(avail) + 'px'; el.style.overflowY = 'auto';
+        r = el.getBoundingClientRect();
+      }
+      var dx = 0, dy = 0;
+      if (r.right > vw - M) dx = vw - M - r.right;
+      if (r.left + dx < M) dx = M - r.left;
+      if (r.bottom > vh - M) dy = vh - M - r.bottom;
+      if (r.top + dy < M) dy = M - r.top;
+      if ((dx || dy) && cs.left !== 'auto' && cs.top !== 'auto' && el.id !== 'inspector') {
+        if (dx) el.style.left = Math.round(parseFloat(cs.left) + dx) + 'px';
+        if (dy) el.style.top = Math.round(parseFloat(cs.top) + dy) + 'px';
+      }
+    } finally { setTimeout(function () { busy = false; }, 0); }
+  }
+
+  var SEL = '#contextMenu,#moreMenu,.dropdown-menu,#ctxPop,#fontPop,#txPop,#ulPop,#selMenu,#csMenu';
+  function watchAll() {
+    document.querySelectorAll(SEL).forEach(function (el) {
+      if (el._uaW) return; el._uaW = 1;
+      new MutationObserver(function () { if (!busy) requestAnimationFrame(function () { clamp(el); }); })
+        .observe(el, { attributes: true, attributeFilter: ['class', 'hidden', 'style'], childList: el.id === 'contextMenu' });
+    });
+  }
+
+  /* Etiquetas emergentes en botones solo-icono dentro de paneles (mantener pulsado ~0,45 s) */
+  var tip = document.createElement('div'); tip.id = 'uaTip'; document.body.appendChild(tip);
+  var tipT = 0;
+  function hideTip() { clearTimeout(tipT); tip.classList.remove('show'); }
+  document.addEventListener('pointerdown', function (e) {
+    hideTip();
+    var b = e.target.closest && e.target.closest('button[title],[role=button][title],label[title]');
+    if (!b || (b.textContent || '').trim()) return;
+    if (!b.closest('.inspector,#ctxPop,#rightPanel,#cpk,.modal,#fontPop,#txPop,#ulPop,#ribbon,#qa,#edBar,#fmtBar')) return;
+    var x = e.clientX, y = e.clientY, t = b.getAttribute('title');
+    tipT = setTimeout(function () {
+      tip.textContent = t; tip.classList.add('show');
+      var w = tip.offsetWidth, h = tip.offsetHeight;
+      tip.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, x - w / 2)) + 'px';
+      tip.style.top = (y - h - 22 < 6 ? y + 22 : y - h - 22) + 'px';
+    }, 450);
+  }, true);
+  ['pointerup', 'pointercancel', 'scroll'].forEach(function (ev) { document.addEventListener(ev, function () { setTimeout(hideTip, ev === 'pointerup' ? 900 : 0); }, true); });
+
+  function all() { metrics(); watchAll(); document.querySelectorAll(SEL).forEach(clamp); }
+  window.addEventListener('resize', all);
+  window.addEventListener('orientationchange', function () { setTimeout(all, 250); });
+  if (window.visualViewport) { visualViewport.addEventListener('resize', all); visualViewport.addEventListener('scroll', function () { metrics(); }); }
+  /* popups creados más tarde */
+  new MutationObserver(function () { watchAll(); }).observe(document.body, { childList: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', all); else all();
+  setTimeout(all, 600);
+})();
+</script>
+
+<style id="stateSyncStyle">
+/* ===== Auditoría de estados: indicadores coherentes y táctiles ===== */
+.icon-btn.on, .icon-btn[aria-pressed="true"] { border-color: var(--accent) !important; color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 26%, var(--panel, transparent)) !important; box-shadow: 0 0 0 1px var(--accent) inset; }
+#ribbonCollapseBtn svg { transition: transform .15s; }
+#ribbon .rb-body button[data-px="gridCfgBtn"].active { border-color: var(--accent); color: var(--text); }
+/* con la cinta oculta, la pestaña marcada no aparenta estar abierta */
+body.ribbon-collapsed #ribbon .rb-tabs > button[data-rt].active { border-bottom-style: dotted; opacity: .75; }
+#ribbon .rb-tabs > button[data-rt][aria-expanded="true"].active { border-bottom-width: 3px; }
+</style>
+<script id="stateSyncScript">
+(function () {
+  'use strict';
+  var B = document.body, $ = function (id) { return document.getElementById(id); };
+  var CHEV_UP = '<polyline points="18 15 12 9 6 15"/>', CHEV_DOWN = '<polyline points="6 9 12 15 18 9"/>';
+
+  function ribbonVisible() {
+    var w = document.querySelector('#ribbon .rb-bodywrap');
+    if (w) return getComputedStyle(w).display !== 'none';
+    return !B.classList.contains('ribbon-collapsed');
+  }
+  function setPressed(el, on) {
+    if (!el) return;
+    el.classList.toggle('on', !!on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  function syncRibbon() {
+    var vis = ribbonVisible(), b = $('ribbonCollapseBtn');
+    if (b) {
+      setPressed(b, vis);
+      b.setAttribute('aria-expanded', vis ? 'true' : 'false');
+      b.title = vis ? 'Cinta visible (toca para ocultarla)' : 'Cinta oculta (toca para mostrarla)';
+      var s = b.querySelector('svg'), h = vis ? CHEV_UP : CHEV_DOWN;
+      if (s && s.innerHTML !== h) s.innerHTML = h;
+    }
+    document.querySelectorAll('#ribbon .rb-tabs > button[data-rt]').forEach(function (t) {
+      var a = t.classList.contains('active');
+      t.setAttribute('aria-selected', a ? 'true' : 'false');
+      t.setAttribute('aria-expanded', a && vis ? 'true' : 'false');
+    });
+  }
+  function soundOn() { var b = $('soundToggle'); return !(b && b.querySelector('svg line')); }
+  function syncSound() { var b = $('soundToggle'); if (!b) return; var on = soundOn(); setPressed(b, on); b.title = on ? 'Sonidos activados (toca para silenciar)' : 'Sonidos silenciados (toca para activar)'; }
+  function syncModalBtn(btnId, modalId, onTitle, offTitle) {
+    var b = $(btnId), m = $(modalId); if (!b || !m) return;
+    var on = m.classList.contains('show');
+    setPressed(b, on);
+    document.querySelectorAll('[data-px="' + btnId + '"]').forEach(function (x) { x.classList.toggle('active', on); });
+  }
+  function syncMirror(id) { var b = $(id); if (b) b.setAttribute('aria-pressed', b.classList.contains('on') ? 'true' : 'false'); }
+  function syncAll() {
+    syncRibbon(); syncSound();
+    syncModalBtn('themeToggleBtn', 'themeModal');
+    syncModalBtn('gridCfgBtn', 'gridModal');
+    ['qaProtect', 'qaMulti', 'rightPanelBtn', 'textProtectBtn', 'fpPin'].forEach(syncMirror);
+  }
+
+  var watched = {};
+  function watch(id, fn, opts) {
+    var el = $(id); if (!el || watched[id]) return;
+    watched[id] = 1;
+    new MutationObserver(fn).observe(el, opts || { attributes: true, attributeFilter: ['class'] });
+  }
+  function attach() {
+    watch('themeModal', syncAll); watch('gridModal', syncAll);
+    watch('soundToggle', syncSound, { childList: true, subtree: true });
+    ['qaProtect', 'qaMulti', 'rightPanelBtn', 'textProtectBtn', 'fpPin'].forEach(function (id) { watch(id, function () { syncMirror(id); }); });
+    var r = $('ribbon'); if (r && !watched.ribbon) { watched.ribbon = 1; new MutationObserver(syncRibbon).observe(r, { attributes: true, attributeFilter: ['class'], subtree: true }); }
+  }
+  new MutationObserver(syncRibbon).observe(B, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(function () { attach(); syncAll(); }).observe(B, { childList: true });
+  /* también cuando algo cambia el layout desde otro control, o al volver a la app */
+  window.addEventListener('resize', syncRibbon);
+  document.addEventListener('visibilitychange', syncAll);
+  window.addEventListener('pageshow', syncAll);
+  document.addEventListener('click', function () { setTimeout(syncAll, 120); }, true);
+  attach(); syncAll();
+  document.addEventListener('DOMContentLoaded', function () { attach(); syncAll(); });
+  window.addEventListener('load', function () { attach(); setTimeout(syncAll, 200); setTimeout(syncAll, 700); });
+})();
+</script>
+
 </body>
 </html>
