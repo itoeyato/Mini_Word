@@ -2262,22 +2262,27 @@ License: Apache-2.0
         <button type="button" class="btn rg-opt" data-v="justify" title="Mosaico: ocupar el ancho de la hoja"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="11" height="7"/><rect x="16" y="4" width="5" height="7"/><rect x="3" y="13" width="5" height="7"/><rect x="10" y="13" width="11" height="7"/></svg><span>Mosaico</span></button>
         <button type="button" class="btn rg-opt" data-v="grid" title="Rejilla: encajar a la hoja completa"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg><span>Rejilla</span></button>
         <button type="button" class="btn rg-opt" data-v="perpage" title="Una por hoja"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="1"/><rect x="9" y="7" width="6" height="6"/></svg><span>1/hoja</span></button>
+        <button type="button" class="btn rg-opt" data-v="cols" title="Columnas: conserva el tamaño y llena de arriba a abajo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="6" height="8"/><rect x="3" y="13" width="6" height="8"/><rect x="11" y="3" width="6" height="5"/><rect x="11" y="10" width="6" height="11"/></svg><span>Cols.</span></button>
+        <button type="button" class="btn rg-opt" data-v="cascade" title="Cascada: conserva el tamaño y escalona en diagonal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="10" height="10"/><rect x="8" y="8" width="10" height="10"/><rect x="12" y="12" width="9" height="9"/></svg><span>Casc.</span></button>
       </div>
-      <select id="rgLayout" style="display:none"><option value="keep">Filas</option><option value="justify">Mosaico</option><option value="grid">Rejilla</option><option value="perpage">Una por hoja</option></select>
+      <select id="rgLayout" style="display:none"><option value="keep">Filas</option><option value="justify">Mosaico</option><option value="grid">Rejilla</option><option value="perpage">Una por hoja</option><option value="cols">Columnas</option><option value="cascade">Cascada</option></select>
       <label>Orden</label>
       <div class="rg-seg" data-sel="rgOrder">
         <button type="button" class="btn" data-v="reading" title="Posición actual (lectura)">Lectura</button>
         <button type="button" class="btn" data-v="layer" title="Orden de capas">Capas</button>
         <button type="button" class="btn" data-v="big" title="De mayor a menor">Mayor</button>
         <button type="button" class="btn" data-v="small" title="De menor a mayor">Menor</button>
+        <button type="button" class="btn" data-v="tall" title="De más alto a más bajo (rellena mejor las filas)">Alto</button>
+        <button type="button" class="btn" data-v="wide" title="De más ancho a más angosto">Ancho</button>
         <button type="button" class="btn rg-man" data-v="manual" title="Orden elegido por ti">Manual</button>
       </div>
-      <select id="rgOrder" style="display:none"><option value="reading">Lectura</option><option value="layer">Capas</option><option value="big">Mayor</option><option value="small">Menor</option><option value="manual">Manual</option></select>
+      <select id="rgOrder" style="display:none"><option value="reading">Lectura</option><option value="layer">Capas</option><option value="big">Mayor</option><option value="small">Menor</option><option value="tall">Alto</option><option value="wide">Ancho</option><option value="manual">Manual</option></select>
       <div class="rg-two">
         <div><label>Sep. cm</label><input data-unit="cm" type="text" id="rgGap" value="0.5" step="0.1" min="0" inputmode="decimal" title="Separación (cm)" /></div>
         <div><label>Marg. cm</label><input data-unit="cm" type="text" id="rgMargin" value="1" step="0.1" min="0" inputmode="decimal" title="Margen (cm)" /></div>
       </div>
-      <div data-rg="grid perpage"><label>Encaje</label>
+      <div data-rg="grid perpage"><div class="switch-row"><span>Conservar tamaño (solo mueve)</span><label class="switch"><input type="checkbox" id="rgKeepSize" /><span class="switch-slider"></span></label></div></div>
+      <div data-rg="grid perpage" data-rgnk="1"><label>Encaje</label>
         <div class="rg-seg" data-sel="rgFit">
           <button type="button" class="btn" data-v="fill" title="Rellenar (recorta)">Llenar</button>
           <button type="button" class="btn" data-v="fit" title="Ajustar (sin recortar)">Ajustar</button>
@@ -2288,7 +2293,16 @@ License: Apache-2.0
         <input type="number" id="rgCols" value="" placeholder="Auto" min="0" max="30" step="1" inputmode="numeric" title="Columnas (vacío o 0 = automático)" />
         <div class="switch-row"><span>Última ancha</span><label class="switch"><input type="checkbox" id="rgExpand" checked /><span class="switch-slider"></span></label></div></div>
       <div data-rg="justify"><div class="switch-row"><span>Llenar hoja (recorta)</span><label class="switch"><input type="checkbox" id="rgFillPage" /><span class="switch-slider"></span></label></div></div>
-      <div data-rg="keep"><label>Alineación</label>
+      <div data-rg="keep"><label>Alinear en la fila</label>
+        <div class="rg-seg al" data-sel="rgValign">
+          <button type="button" class="btn" data-v="top" title="Arriba">Sup.</button>
+          <button type="button" class="btn" data-v="center" title="Centro">Med.</button>
+          <button type="button" class="btn" data-v="bottom" title="Abajo">Inf.</button>
+        </div>
+        <select id="rgValign" style="display:none"><option value="center">Centro</option><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
+        <div class="switch-row"><span>Repartir espacio (justificar)</span><label class="switch"><input type="checkbox" id="rgSpread" /><span class="switch-slider"></span></label></div>
+        <div class="switch-row"><span>Rellenar huecos (compactar)</span><label class="switch"><input type="checkbox" id="rgPack" /><span class="switch-slider"></span></label></div></div>
+      <div data-rg="keep cols"><label>Alineación</label>
         <div class="rg-seg al" data-sel="rgAlign">
           <button type="button" class="btn" data-v="left" title="Izquierda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg></button>
           <button type="button" class="btn" data-v="center" title="Centro"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M5 18h14"/></svg></button>
@@ -2484,8 +2498,11 @@ License: Apache-2.0
       <label>Doble cara (dúplex manual)</label>
       <!-- FIX 1: "Solo frente" -> "Todas" -->
       <div class="toggle"><button id="printDuplexOff" class="active">Todas</button><button id="printDuplexOdd">Frente (impares)</button><button id="printDuplexEven">Reverso (pares)</button></div>
-      <button id="printCalib" type="button" style="margin-top:8px;width:100%">Agregar hoja de calibración (cuadro 10×10 cm)</button>
-      <div class="hint" style="margin:8px 0;padding:8px;border-radius:6px;line-height:1.4">Tamaño físico: para que las medidas en cm sean exactas, en el diálogo de impresión selecciona <b>Tamaño real / 100%</b> y desactiva «Ajustar a página». En Android usa el servicio <b>HP Print Service Plugin</b> (o la app HP Smart), elige papel <b>Carta/Oficio</b> igual al del documento y en la impresora deja «Sin borde» desactivado. Para verificar, imprime la hoja de calibración: el cuadro debe medir 10 cm con regla. La impresora tiene márgenes no imprimibles (~3 mm) que también recortan en Word.</div>
+      <label>Compensación al imprimir (mm)</label>
+      <div class="row" style="margin-top:4px;">
+        <div><label>Margen</label><input type="number" id="printCompMargin" value="0" step="0.1" min="-10" max="10" inputmode="decimal" title="Mueve hacia dentro (derecha y abajo) el texto del documento que sigue los márgenes. Solo afecta a la impresión." /></div>
+        <div><label>Objetos</label><input type="number" id="printCompObj" value="0" step="0.1" min="-10" max="10" inputmode="decimal" title="Agranda (o reduce, con negativo) el ancho y alto de imágenes y formas. Ej.: 1 = +1 mm. Solo afecta a la impresión." /></div>
+      </div>
       <label>Vista previa</label>
       <div class="print-preview" id="printPreview"></div>
       <button class="cta full" id="doPrintBtn" style="margin-top: 12px;">Imprimir ahora</button>
@@ -3099,7 +3116,7 @@ License: Apache-2.0
         if(!check.valid) throw new Error(check.errors.join(' '));
         committing=false;
         if(options.history!==false) saveState();
-        else { lastCommittedState=Units.stringify(state); if(options.persist!==false)saveToLocalStorage(); invalidate({type:'transaction',label:label||'Edición'}); }
+        else { lastCommittedState=Units.stringify(state); if(options.persist!==false)saveToLocalStorage(); else { try{persistSoon();}catch(_){} } invalidate({type:'transaction',label:label||'Edición'}); }
         if(options.refresh!==false) {
           try{renderAll();syncUIWithState();updateThumbnails();}catch(err){console.warn('No se pudo refrescar una vista tras la transacción',err);}
         }
@@ -3545,6 +3562,15 @@ License: Apache-2.0
       if (!storageWarned && !window.__mwTestBusy) { storageWarned = true; try { showToast('No se pudo guardar en este dispositivo (' + (e && e.name === 'QuotaExceededError' ? 'almacenamiento lleno' : (e && e.name || 'error')) + '). Usa Archivo → Guardar → «Guardar documento como archivo» para no perder cambios.', 'error', 6000); } catch (_) {} }
       return false; }
   }
+  /* Guardado diferido y de seguridad: los cambios «sin historial» (márgenes, fondo…) también llegan al almacenamiento,
+     y al ocultar/cerrar la página se guarda SIEMPRE el documento tal como está (salvo con una herramienta en vista previa). */
+  var __persistT = 0, __persistArmed = false;
+  function __toolBusy() { try { if (toolKey) return true; } catch (_) {} try { if (rg && rg.open) return true; } catch (_) {} return false; }
+  function persistSoon(ms) { clearTimeout(__persistT); __persistT = setTimeout(() => { __persistT = 0; if (__persistArmed && !window.__mwTestBusy && !__toolBusy()) saveToLocalStorage(); }, ms || 350); }
+  function persistNow() { if (__persistT) { clearTimeout(__persistT); __persistT = 0; } if (__persistArmed && !window.__mwTestBusy && !__toolBusy()) saveToLocalStorage(); }
+  window.addEventListener('load', () => setTimeout(() => { __persistArmed = true; }, 900));
+  window.addEventListener('pagehide', persistNow); window.addEventListener('beforeunload', persistNow);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persistNow(); });
   /* ====== DOCUMENTO EN ARCHIVO (.mwdoc) ======
      JSON con la MISMA serialización canónica del almacenamiento (medidas en cm + enteros EMU `_emu` que prevalecen al abrir),
      versión de migración y versión de formato. Se abre por la misma ruta de migración que el almacenamiento local. */
@@ -5518,7 +5544,8 @@ function updateThumbnails() {
     const v = (id) => $(id).value;
     return { layout: v('rgLayout'), order: v('rgOrder'), gap: numOr('rgGap', 0.5), margin: numOr('rgMargin', 1), fitMode: v('rgFit'),
       cols: clampInt(v('rgCols'), 0, 30, 0), expandLast: $('rgExpand').checked, align: v('rgAlign'), centerV: $('rgCenterV').checked,
-      newPages: $('rgNewPages').checked, fillPage: $('rgFillPage').checked };
+      newPages: $('rgNewPages').checked, fillPage: $('rgFillPage').checked,
+      keepSize: $('rgKeepSize').checked, valign: v('rgValign'), spread: $('rgSpread').checked, pack: $('rgPack').checked };
   }
   function rgOrder(list, how) {
     const a = list.slice();
@@ -5526,6 +5553,8 @@ function updateThumbnails() {
     if (how === 'layer') return a;
     if (how === 'big') return a.sort((p, q) => q.wCm * q.hCm - p.wCm * p.hCm);
     if (how === 'small') return a.sort((p, q) => p.wCm * p.hCm - q.wCm * q.hCm);
+    if (how === 'tall') return a.sort((p, q) => rotVis(q).h - rotVis(p).h);
+    if (how === 'wide') return a.sort((p, q) => rotVis(q).w - rotVis(p).w);
     a.sort((p, q) => (p.yCm + p.hCm / 2) - (q.yCm + q.hCm / 2));
     const rows = [];
     a.forEach(e => {
@@ -5548,11 +5577,16 @@ function updateThumbnails() {
     const pos = (v) => Math.max(0.1, v);
 
     if (o.layout === 'perpage') {
+      if (o.keepSize) {
+        res.pages = items.map(el => { const vz = rotVis(el); if (vz.w > W + 1e-6 || vz.h > H + 1e-6) res.over++; return [pl(el, Math.max(0, (W - vz.w) / 2), Math.max(0, (H - vz.h) / 2), vz.w, vz.h, null)]; });
+        return res;
+      }
       res.pages = items.map(el => [pl(el, 0, 0, W, H, o.fitMode)]);
       return res;
     }
     if (o.layout === 'grid') {
       let cols = o.cols;
+      if (!cols && o.keepSize) { const mw = Math.max(...items.map(e => rotVis(e).w)); cols = Math.max(1, Math.min(n, Math.floor((W + gap) / (mw + gap)))); }
       if (!cols) {
         const asp = items.map(rgAspectOf).sort((a, b) => a - b)[n >> 1]; let bs = Infinity;
         for (let c = 1; c <= n; c++) {
@@ -5567,6 +5601,7 @@ function updateThumbnails() {
         const r = Math.floor(i / cols), c = i % cols, rc = r === rows - 1 ? n - cols * (rows - 1) : cols;
         const cw = (o.expandLast || rc === cols) ? pos((W - gap * (rc - 1)) / rc) : pos((W - gap * (cols - 1)) / cols);
         const xoff = (W - (rc * cw + gap * (rc - 1))) / 2;
+        if (o.keepSize) { const vz = rotVis(el); if (vz.w > cw + 1e-6 || vz.h > ch + 1e-6) res.over++; list.push(pl(el, xoff + c * (cw + gap) + (cw - vz.w) / 2, r * (ch + gap) + (ch - vz.h) / 2, vz.w, vz.h, null)); return; }
         list.push(pl(el, xoff + c * (cw + gap), r * (ch + gap), cw, ch, o.fitMode));
       });
       res.pages = [list];
@@ -5606,14 +5641,58 @@ function updateThumbnails() {
       res.pages = [list];
       return res;
     }
+    if (o.layout === 'cascade') {
+      const vzs = items.map(rotVis), mw = Math.max(...vzs.map(v => v.w)), mh = Math.max(...vzs.map(v => v.h));
+      const step = n > 1 ? Math.max(0, Math.min(gap, (W - mw) / (n - 1), (H - mh) / (n - 1))) : 0;
+      if (mw > W + 1e-6 || mh > H + 1e-6) res.over += items.filter((e, i) => vzs[i].w > W + 1e-6 || vzs[i].h > H + 1e-6).length;
+      res.pages = [items.map((el, i) => pl(el, i * step, i * step, vzs[i].w, vzs[i].h, null))];
+      return res;
+    }
+    if (o.layout === 'cols') {
+      const cs = []; let col = { items: [], h: 0, w: 0 };
+      items.forEach(el => {
+        const vz = rotVis(el), add = (col.items.length ? gap : 0) + vz.h;
+        if (col.items.length && col.h + add > H + 1e-6) { cs.push(col); col = { items: [], h: 0, w: 0 }; }
+        col.h += (col.items.length ? gap : 0) + vz.h; col.w = Math.max(col.w, vz.w); col.items.push(el);
+      });
+      if (col.items.length) cs.push(col);
+      const pr = [[]]; let pi = 0, x = 0;
+      for (const c of cs) {
+        const need = (pr[pi].length ? gap : 0) + c.w;
+        if (pr[pi].length && x + need > W + 1e-6) {
+          if (!o.newPages) { res.over += c.items.length; continue; }
+          pi++; pr[pi] = []; x = 0;
+        }
+        c.x = pr[pi].length ? x + gap : 0; x = c.x + c.w; pr[pi].push(c);
+      }
+      const af = o.align === 'left' ? 0 : o.align === 'right' ? 1 : 0.5;
+      pr.forEach(list0 => {
+        if (!list0.length) return;
+        const last = list0[list0.length - 1], totW = last.x + last.w, ox = pr.length === 1 ? Math.max(0, (W - totW) * af) : 0, list = [];
+        list0.forEach(c => {
+          let y = (o.centerV && pr.length === 1) ? Math.max(0, (H - c.h) / 2) : 0;
+          c.items.forEach(el => { const vz = rotVis(el); list.push(pl(el, ox + c.x + (c.w - vz.w) * af, y, vz.w, vz.h, null)); y += vz.h + gap; });
+        });
+        res.pages.push(list);
+      });
+      return res;
+    }
     // keep: conservar el tamaño y acomodar en filas
     const rows = []; let row = { items: [], w: 0, h: 0 };
-    items.forEach(el => {
-      const vz = rotVis(el), add = (row.items.length ? gap : 0) + vz.w;
-      if (row.items.length && row.w + add > W + 1e-6) { rows.push(row); row = { items: [], w: 0, h: 0 }; }
-      row.w += (row.items.length ? gap : 0) + vz.w; row.h = Math.max(row.h, vz.h); row.items.push(el);
-    });
-    if (row.items.length) rows.push(row);
+    if (o.pack) {
+      items.forEach(el => {
+        const vz = rotVis(el); let r = rows.find(q => q.w + gap + vz.w <= W + 1e-6);
+        if (!r) { r = { items: [], w: -gap, h: 0 }; rows.push(r); }
+        r.w += gap + vz.w; r.h = Math.max(r.h, vz.h); r.items.push(el);
+      });
+    } else {
+      items.forEach(el => {
+        const vz = rotVis(el), add = (row.items.length ? gap : 0) + vz.w;
+        if (row.items.length && row.w + add > W + 1e-6) { rows.push(row); row = { items: [], w: 0, h: 0 }; }
+        row.w += (row.items.length ? gap : 0) + vz.w; row.h = Math.max(row.h, vz.h); row.items.push(el);
+      });
+      if (row.items.length) rows.push(row);
+    }
     const pr = [[]]; let pi = 0, y = 0;
     for (const r of rows) {
       const need = (pr[pi].length ? gap : 0) + r.h;
@@ -5626,9 +5705,12 @@ function updateThumbnails() {
     pr.forEach((rs, p) => {
       if (!rs.length) return;
       const last = rs[rs.length - 1], totH = last.y + last.h, oy = (o.centerV && pr.length === 1) ? Math.max(0, (H - totH) / 2) : 0, list = [];
-      rs.forEach(r => {
-        let x = r.w >= W ? 0 : o.align === 'left' ? 0 : o.align === 'right' ? W - r.w : (W - r.w) / 2;
-        r.items.forEach(el => { const vz = rotVis(el); list.push(pl(el, x, oy + r.y + (r.h - vz.h) / 2, vz.w, vz.h, null)); x += vz.w + gap; });
+      const vf = o.valign === 'top' ? 0 : o.valign === 'bottom' ? 1 : 0.5;
+      rs.forEach((r, ri) => {
+        const lastAll = p === pr.length - 1 && ri === rs.length - 1 && !(p === 0 && rs.length === 1);
+        const dist = o.spread && r.items.length > 1 && !lastAll, g2 = dist ? Math.max(gap, (W - (r.w - gap * (r.items.length - 1))) / (r.items.length - 1)) : gap;
+        let x = dist ? 0 : (r.w >= W ? 0 : o.align === 'left' ? 0 : o.align === 'right' ? W - r.w : (W - r.w) / 2);
+        r.items.forEach(el => { const vz = rotVis(el); list.push(pl(el, x, oy + r.y + (r.h - vz.h) * vf, vz.w, vz.h, null)); x += vz.w + g2; });
       });
       res.pages.push(list);
     });
@@ -5645,13 +5727,15 @@ function updateThumbnails() {
     const el = p.el; sanitizeEl(el);
     el.groupId = null;
     const bx = rotFit(el, p.x, p.y, Math.max(0.1, p.w), Math.max(0.1, p.h));
-    el.xCm = r3(bx.x); el.yCm = r3(bx.y); el.wCm = r3(Math.max(0.1, bx.w)); el.hCm = r3(Math.max(0.1, bx.h));
+    el.xCm = r3(bx.x); el.yCm = r3(bx.y);
+    if (p.mode !== null) { el.wCm = r3(Math.max(0.1, bx.w)); el.hCm = r3(Math.max(0.1, bx.h)); }   // modo null = solo posición: el tamaño no se toca
     if (p.mode && !isGen(el)) { el.mode = p.mode; el.imgZoom = 100; el.imgPosX = 0; el.imgPosY = 0; }
   }
   /* sincroniza etiquetas, secciones visibles y resaltado de la plantilla elegida */
   function rgSyncUi() {
     const o = rgOpts();
     document.querySelectorAll('#reorgModal [data-rg]').forEach(el => { el.style.display = el.dataset.rg.split(' ').includes(o.layout) ? '' : 'none'; });
+    document.querySelectorAll('#reorgModal [data-rgnk]').forEach(el => { if (o.keepSize && el.style.display === '') el.style.display = 'none'; });
     document.querySelectorAll('#reorgModal [data-sel]').forEach(c => { const v = $(c.dataset.sel).value; c.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.v === v)); });
     const bt = $('rgToolBtn'); if (bt) bt.classList.toggle('active', rg.open);
   }
@@ -5774,7 +5858,7 @@ function updateThumbnails() {
   /* opciones elegidas con botones dentro de la barra (el valor se guarda en el select oculto) */
   $('reorgModal').addEventListener('click', (e) => {
     const bt = e.target.closest('[data-sel] button'); if (!bt) return;
-    sfx.tap(); $(bt.parentNode.dataset.sel).value = bt.dataset.v; rgSyncUi(); rgSchedule();
+    sfx.tap(); { const sel = $(bt.parentNode.dataset.sel); sel.value = bt.dataset.v; sel.dispatchEvent(new Event('change', { bubbles: true })); } rgSyncUi(); rgSchedule();
   });
   $('reorgModal').addEventListener('input', rgSchedule);
   $('reorgModal').addEventListener('change', rgSchedule);
@@ -8042,6 +8126,17 @@ function updateThumbnails() {
       const pages = MWComposer.documentPages(Array.isArray(options.pageIndices) ? options.pageIndices : undefined);
       await MWSil.ensureAll(pages.flatMap(pg => pg.items.map(it => it.object)));   // siluetas de imágenes listas antes de escribir
       const sizes = [];
+      /* Compensación de impresión (mm): «margen» desplaza el texto del documento (el que sigue los márgenes);
+         «objetos» agranda imágenes y formas (ancho y alto), anclando la esquina superior izquierda. */
+      const compPrint = (o) => {
+        if (!options.forPrint || !o) return;
+        const cM = (Number(options.compMargin) || 0) / 10, cO = (Number(options.compObj) || 0) / 10;
+        if (o.flow) { if (cM) { o.xCm += cM; o.yCm += cM; } return; }
+        if (cO && o.type !== 'text') {
+          o.wCm = Math.max(0.01, o.wCm + cO); o.hCm = Math.max(0.01, o.hCm + cO);
+          if (Number(o.rot)) { o.xCm -= cO / 2; o.yCm -= cO / 2; }   // girado: se agranda desde el centro
+        }
+      };
       for (const page of pages) {
         const pageW = MWGeometry.cmToPt(page.widthCm), pageH = MWGeometry.cmToPt(page.heightCm); sizes.push({ index: page.index, wCm: page.widthCm, hCm: page.heightCm, wPt: pageW, hPt: pageH, own: page.dimensionsSource === 'page' });
         const prevCtx = MWPageCtx; MWPageCtx = page.index; try {
@@ -8052,11 +8147,12 @@ function updateThumbnails() {
           c.q().rect(0, 0, pageW, pageH).op('W n').op(`/${sh} sh`).Q(); report.shadings++; }
         else c.fillRGB(bg ? bg.c1 : '#ffffff').rect(0, 0, pageW, pageH).op('f');
         for (const it of page.items) { const el = it.object; if (it.layer !== 'page' || !el || el.hidden || !el.shadowBelow || !el.shadow || !(Number(el.shadow.opacity) > 0)) continue;
-          const o = Object.assign({}, el); sanitizeEl(o); c.q(); c.cm(...frameMatrix(o, PT)); pdfShadow(W, c, o, true); c.Q(); if (MWEffects.sigmaCm(o.shadow.blur) > 0) report.softMaskShadows++; else report.vectorShadows++; }
+          const o = Object.assign({}, el); sanitizeEl(o); compPrint(o); c.q(); c.cm(...frameMatrix(o, PT)); pdfShadow(W, c, o, true); c.Q(); if (MWEffects.sigmaCm(o.shadow.blur) > 0) report.softMaskShadows++; else report.vectorShadows++; }
         for (const seg of groupSegments(page.items)) {
           const target = seg.opacity < 0.9999 ? new MWPdf.Content() : c;
           for (const it of seg.items) { const src = it.object; if (!src || src.hidden) continue;
             const el = Object.assign({}, src, { tx: src.tx && Object.assign({}, src.tx), sh: src.sh && Object.assign({}, src.sh), filters: src.filters && Object.assign({}, src.filters), shadow: src.shadow && Object.assign({}, src.shadow) }); sanitizeEl(el);
+            compPrint(el);
             try { await pdfObject(W, target, el, it, report); } catch (error) { const detail = { id: el.id ?? null, name: el.layerName || el.id || 'Elemento sin nombre', message: error && error.message || 'Error de representación' }; exportErrors.push(detail); report.warn(`No se pudo exportar «${detail.name}»: ${detail.message}.`); } }
           if (target !== c) { const fm = W.form(target, [0, 0, pageW, pageH], { group: true, isolated: true }); c.q().gs(W.extGState({ ca: seg.opacity, CA: seg.opacity })).op(`/${fm.name} Do`).Q(); report.transparencyGroups++; }
         }
@@ -8303,31 +8399,45 @@ function updateThumbnails() {
       item.appendChild(img); item.appendChild(label); preview.appendChild(item);
     }
   }
+  const PRINT_PREF_KEY = 'mw-print-prefs';
+  function printPrefsLoad() { try { return JSON.parse(localStorage.getItem(PRINT_PREF_KEY)) || {}; } catch (_) { return {}; } }
+  function printPrefsSave() {
+    try { localStorage.setItem(PRINT_PREF_KEY, JSON.stringify({ scope: printScope, duplex: printDuplex, cm: $('printCompMargin').value, co: $('printCompObj').value, from: $('printFrom').value, to: $('printTo').value })); } catch (_) {}
+  }
+  /* compensación de impresión en mm (se limita a ±10 mm) */
+  function printComp() {
+    const n = (id) => { const v = parseFloat(String($(id).value).replace(',', '.')); return Number.isFinite(v) ? Math.max(-10, Math.min(10, v)) : 0; };
+    return { margin: n('printCompMargin'), obj: n('printCompObj') };
+  }
   function setPrintScope(scope) {
     printScope = scope;
     $('printScopeCurrent').classList.toggle('active', scope === 'current');
     $('printScopeAll').classList.toggle('active', scope === 'all');
     $('printScopeRange').classList.toggle('active', scope === 'range');
     $('printRangeRow').style.display = scope === 'range' ? 'flex' : 'none';
-    updatePrintPreview();
+    updatePrintPreview(); printPrefsSave();
   }
   function setPrintDuplex(mode) {
     printDuplex = mode;
     $('printDuplexOff').classList.toggle('active', mode === 'off');
     $('printDuplexOdd').classList.toggle('active', mode === 'odd');
     $('printDuplexEven').classList.toggle('active', mode === 'even');
-    updatePrintPreview();
+    updatePrintPreview(); printPrefsSave();
   }
   function openPrintModal() {
-    $('printFrom').max = state.pages.length; $('printTo').max = state.pages.length;
-    $('printFrom').value = 1; $('printTo').value = state.pages.length;
-    setPrintScope('all'); setPrintDuplex('off');
+    const pr = printPrefsLoad(), tot = state.pages.length, okPg = (v, d) => { v = parseInt(v, 10); return v >= 1 && v <= tot ? v : d; };
+    $('printFrom').max = tot; $('printTo').max = tot;
+    $('printFrom').value = okPg(pr.from, 1); $('printTo').value = okPg(pr.to, tot);
+    if (pr.cm !== undefined) $('printCompMargin').value = pr.cm; if (pr.co !== undefined) $('printCompObj').value = pr.co;
+    setPrintScope(['current', 'all', 'range'].includes(pr.scope) ? pr.scope : 'all'); setPrintDuplex(['off', 'odd', 'even'].includes(pr.duplex) ? pr.duplex : 'off');
     const m = $('printModal'); m.classList.add('show'); setTimeout(() => m.classList.add('visible'), 10);
   }
   function closePrintModal() {
     const m = $('printModal'); m.classList.remove('visible');
     setTimeout(() => m.classList.remove('show'), 250);
   }
+  ['printCompMargin', 'printCompObj', 'printFrom', 'printTo'].forEach(id => { const e = $(id); if (e) { e.addEventListener('input', printPrefsSave); e.addEventListener('change', printPrefsSave); } });
+  { const pr0 = printPrefsLoad(); if (pr0.cm !== undefined) $('printCompMargin').value = pr0.cm; if (pr0.co !== undefined) $('printCompObj').value = pr0.co; }
   /* ====== IMPRESIÓN: Documento → Composición → PDF → Visor → Servicio de impresión ======
      Se imprime el MISMO PDF que se exporta. No se vuelve a dibujar la página como imagen. El visor muestra el PDF real
      y recuerda imprimir al 100 % («Tamaño real»); el PDF declara /PrintScaling /None. En Android, Chrome no muestra
@@ -8370,7 +8480,7 @@ function updateThumbnails() {
     if (!pages.length) { showToast('No hay páginas para imprimir', 'info'); return; }
     showLoading('Generando PDF para imprimir…');
     try {
-      const result = await generatePdf({ testMode: true, forPrint: true, pageIndices: pages });
+      const pc = printComp(), result = await generatePdf({ testMode: true, forPrint: true, pageIndices: pages, compMargin: pc.margin, compObj: pc.obj });
       if (!result || !result.blob || result.blob.size < 100) throw new Error('El motor documental no produjo un PDF válido.');
       closePrintModal(); hideLoading();
       const v = openPrintViewer(result);
@@ -12893,7 +13003,6 @@ document.addEventListener('pointerdown', (e) => {
     $('printTo').addEventListener('change', updatePrintPreview);
     $('printDuplexOff').addEventListener('click', () => { sfx.tap(); setPrintDuplex('off'); });
     $('printDuplexOdd').addEventListener('click', () => { sfx.tap(); setPrintDuplex('odd'); });
-    $('printCalib').addEventListener('click', () => { sfx.tap(); addCalibrationPage(); });
     $('printDuplexEven').addEventListener('click', () => { sfx.tap(); setPrintDuplex('even'); });
     $('doPrintBtn').addEventListener('click', performPrint);
 
@@ -14375,7 +14484,7 @@ document.addEventListener('pointerdown', (e) => {
      muestran propiedades del documento o de la selección (esos salen del modelo). Al abrir una herramienta se vuelven a
      aplicar sus últimos valores (con sus eventos), porque algunas herramientas reinician sus campos al abrirse. */
   const MWUIState = (() => {
-    const KEY = 'mw-ui-controls', ROOTS = ['batchModal', 'reorgModal', 'lineDetectModal', 'bgeR', 'ocrR', 'collageModal', 'arrayModal', 'posterModal', 'gridModal'];
+    const KEY = 'mw-ui-controls', ROOTS = ['batchModal', 'pdfPrintModal', 'reorgModal', 'lineDetectModal', 'bgeR', 'ocrR', 'collageModal', 'arrayModal', 'posterModal', 'gridModal'];
     const EXTRA = new Set(['showGrid', 'snapGrid', 'snapStep', 'centerModeSelect', 'collageImgMode']);
     const EXCL = new Set(['ceX', 'ceY', 'ceW', 'ceH', 'ceImgSel', 'pdfRangeInput', 'ocrText', 'cpkHex', 'txtContent', 'printFrom', 'printTo']);
     let store = {}; try { store = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (_) {}
@@ -14399,12 +14508,13 @@ document.addEventListener('pointerdown', (e) => {
       apply(null, false); [...EXTRA].forEach(id => { const c = document.getElementById(id); if (c) apply(c.parentElement, true); });
       mo.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'hidden'] });
       const u = uiLoad();
+      if (u.dcScope === 'one' || u.dcScope === 'all') { try { dcScope = u.dcScope; } catch (_) {} }
       if (u.dcTab && ['home', 'insert', 'design', 'layout', 'refs', 'view'].includes(u.dcTab)) { try { dcTab = u.dcTab; syncDoc(); } catch (_) {} }
       if (u.view && Number.isFinite(u.view.zoom)) { try { View.zoom = Math.max(0.2, Math.min(2, u.view.zoom)); if (Number.isFinite(u.view.panX)) { panX = u.view.panX; panY = u.view.panY; } applyStageTransform(); renderAll(); } catch (_) {} }
       if (u.folds) document.querySelectorAll('.subgroup').forEach(g => { const h = g.querySelector('.subgroup-header span'); if (h && u.folds[h.textContent] !== undefined) g.classList.toggle('collapsed', !!u.folds[h.textContent]); });
       document.addEventListener('click', (e) => { const h = e.target.closest && e.target.closest('.subgroup-header'); if (h) setTimeout(() => { const g = h.closest('.subgroup'), t = h.querySelector('span'); if (g && t) { const f = uiLoad().folds || {}; f[t.textContent] = g.classList.contains('collapsed'); uiSave({ folds: f }); } }, 0);
         const rt = e.target.closest && e.target.closest('[data-rt]'); if (rt) setTimeout(() => uiSave({ dcTab }), 0); }, true);
-      const keep = () => uiSave({ view: { zoom: View.zoom, panX, panY }, dcTab });
+      const keep = () => uiSave({ view: { zoom: View.zoom, panX, panY }, dcTab, dcScope });
       window.addEventListener('pagehide', keep); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') keep(); });
       setInterval(keep, 5000);
     }
@@ -16762,7 +16872,7 @@ body.fx-nav #mwgChip{opacity:.35;pointer-events:none}
 #ctxPop #reorgModal .rg-seg .rg-man{display:none}
 #ctxPop #reorgModal .rg-seg .rg-man.active{display:block}
 #ctxPop #reorgModal .rg-seg.al svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;vertical-align:middle}
-#ctxPop #reorgModal .rg-lay{margin-top:3px}
+#ctxPop #reorgModal .rg-lay{margin-top:3px;grid-template-columns:repeat(3,1fr)}
 #ctxPop #reorgModal .rg-opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:34px;padding:3px 0;border-radius:5px;font-size:7.5px;line-height:1.1;width:100%;min-width:0;margin:0;overflow:hidden}
 #ctxPop #reorgModal .rg-opt svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
 #ctxPop #reorgModal .rg-opt span{white-space:nowrap}
