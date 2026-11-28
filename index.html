@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>Mini Word — Editor documental</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Bebas+Neue&family=Pacifico&family=Caveat:wght@400;700&family=Oswald:wght@400;700&family=Lobster&family=Roboto+Slab:wght@400;700&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
@@ -17726,5 +17729,52 @@ body.ribbon-collapsed #ribbon .rb-tabs > button[data-rt].active { border-bottom-
 })();
 </script>
 
+
+<script id="mwAutoFullscreen">
+/* ===== Pantalla completa permanente =====
+   Los navegadores NO permiten entrar en pantalla completa sin un gesto del usuario, así que se entra
+   en el primer toque/tecla y se vuelve a entrar en el siguiente toque si algo la cerró (gesto atrás,
+   cambiar de app, selector de archivos…). El listener es pasivo y en captura: nunca cancela ni altera
+   ningún toque de la app. Si el navegador no soporta la API (iPhone/Safari), no hace nada. */
+(function () {
+  'use strict';
+  const de = document.documentElement;
+  const req = de.requestFullscreen || de.webkitRequestFullscreen || de.msRequestFullscreen;
+  if (!req) return;
+  const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  let enabled = true, busy = false, lastTry = 0, fails = 0;
+  try { if (localStorage.getItem('mw_fs_auto') === '0') enabled = false; } catch (_) {}
+
+  function enter() {
+    if (!enabled || busy || isFs() || document.hidden) return;
+    const now = Date.now();
+    if (now - lastTry < 700) return;            // evita reintentos en ráfaga
+    if (fails >= 3) return;                     // si el navegador la rechaza varias veces seguidas, deja de insistir
+    lastTry = now; busy = true;
+    let p;
+    try { p = req.call(de, { navigationUI: 'hide' }); } catch (_) { try { p = req.call(de); } catch (e) { p = null; } }
+    const done = (ok) => { busy = false; fails = ok ? 0 : fails + 1; };
+    if (p && typeof p.then === 'function') p.then(() => done(true), () => done(false));
+    else setTimeout(() => done(isFs()), 400);
+  }
+
+  const gesture = () => enter();
+  // eventos que cuentan como "gesto de usuario" para el navegador
+  ['pointerup', 'touchend', 'click', 'keydown'].forEach(t =>
+    window.addEventListener(t, gesture, { capture: true, passive: true }));
+
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(t =>
+    document.addEventListener(t, () => { busy = false; if (isFs()) fails = 0; }));
+
+  // Control manual (consola o futuros botones): mwFullscreen.off() / .on() / .toggle()
+  window.mwFullscreen = {
+    on()  { enabled = true;  fails = 0; try { localStorage.removeItem('mw_fs_auto'); } catch (_) {} enter(); },
+    off() { enabled = false; try { localStorage.setItem('mw_fs_auto', '0'); } catch (_) {}
+            try { (document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen || (() => {})).call(document); } catch (_) {} },
+    toggle() { enabled && isFs() ? this.off() : this.on(); },
+    get active() { return isFs(); }
+  };
+})();
+</script>
 </body>
 </html>
